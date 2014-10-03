@@ -2,6 +2,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigInteger;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
@@ -10,16 +11,12 @@ import javax.swing.JOptionPane;
 public class Controller implements ActionListener {
 	
 	// instance variables
-	//private Model model;
 	private View view;
+	private String comboBox;
 
 	
 	public Controller() {
-		//this.model = new Model();
 		this.view = new View(this);
-		
-		// add observers
-		//this.model.addObserver(this.view);
 		
 	}
 	
@@ -27,17 +24,39 @@ public class Controller implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		/*
 		int loops = getLoop();
-		while(loops >= 0) {
-			integerRPN();
-			loops--;
+		comboBox = getComboBox();
+
+		BigInteger realInt = new BigInteger("0");
+		int compInt = 0;
+		String realOutput = "";
+		String compOutput = "";
+		
+		if (comboBox.equals("Integer")) {
+			try {
+				int x = Integer.parseInt(integerRPN());
+				BigInteger y = new BigInteger(bigIntegerRPN());
+				for (int i = 0; i <= loops; i++) {
+					realInt = realInt.add(y);
+					compInt += x;
+				}
+				realOutput = String.valueOf(realInt);
+				compOutput = String.valueOf(compInt);
+			}
+			catch (Exception exc) {
+				realOutput = "error";
+				compOutput = "error";
+			}	
 		}
-		*/
-		view.compResultTextField.setText(integerRPN());
-		System.out.println(integerRPN());
-		//System.out.println(Math.random());
-	
+		else if (comboBox.equals("Float")) {
+			
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Combobox Fehler.");
+		}
+		
+		view.realResultTextField.setText(realOutput);
+		view.compResultTextField.setText(compOutput);
 	}
 		
 
@@ -66,11 +85,14 @@ public class Controller implements ActionListener {
 	
 	
 	public String getInput() {
-		//String x = view.inputField.getText();
-		//System.out.println(x.matches(loopPattern));
 		return view.inputField.getText();
 	}
 	
+	
+	public String getComboBox() {
+		comboBox = (String) view.numSystemComboBox.getSelectedItem();
+		return comboBox;
+	}
 	
 	
 	public String integerRPN() {
@@ -80,19 +102,17 @@ public class Controller implements ActionListener {
 		int a, b, x = 0, i; // a and b are stack numbers to pop, x input/result number to push
 		String [] splitedArray = string.split("\\s");
 		
-		for (i = 0; i < splitedArray.length; ++i) {
+		for (i = 0; i < splitedArray.length; i++) {
 			tk = splitedArray[i];
 			if (tk.matches("^[+-]?(\\d+)$")) {
 				x = Integer.parseInt(tk);
-				//st.push(x);
 			}
 			else {
 				if (tk.length() < 1 || st.size() < 2 ) {
 					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\noder\nZahl fehlt.");
-					 return "error";
+					return "error";
 				}
 				else {
-					//tk = String.valueOf(tk);
 					a = st.pop();
 					b = st.pop();
 					if (tk.equals("+")) {
@@ -108,11 +128,7 @@ public class Controller implements ActionListener {
 						x = b / a;
 					}
 					else if (tk.equals("^")) {
-						double bn = (double) b;
-						double an = (double) a;
-						double xn = (double) x;
-						xn = Math.pow(bn, an);
-						x = (int) xn;
+						x = integerPow(b, a);
 					}
 					else {
 						JOptionPane.showMessageDialog(null, "Fehler.");
@@ -130,10 +146,85 @@ public class Controller implements ActionListener {
 		else {
 			return String.valueOf(st.pop());
 		}
-
+	}
+	
+	
+	public String bigIntegerRPN() {
+		String string = getInput();
+		String tk;
+		Stack<BigInteger> st = new Stack<BigInteger>();
+		int i; 
+		// a and b are stack numbers to pop, x input/result number to push
+		BigInteger a, b , x = new BigInteger("0"); 
+		String [] splitedArray = string.split("\\s");
 		
+		for (i = 0; i < splitedArray.length; i++) {
+			tk = splitedArray[i];
+			if (tk.matches("^[+-]?(\\d+)$")) {
+				x = new BigInteger(tk);
+			}
+			else {
+				if (tk.length() < 1 || st.size() < 2 ) {
+					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\noder\nZahl fehlt.");
+					return "error";
+				}
+				else {
+					a = st.pop();
+					b = st.pop();
+					if (tk.equals("+")) {
+						x = b.add(a);
+					}
+					else if (tk.equals("-")) {
+						x = b.subtract(a);
+					}
+					else if (tk.equals("*")) {
+							x = b.multiply(a);
+					}
+					else if (tk.equals("/")){
+						x = b.divide(a);
+					}
+					else if (tk.equals("^")) {
+						int an = a.intValue();
+						x = b.pow(an);
+					}
+					else {
+						JOptionPane.showMessageDialog(null, "Fehler.");
+						 return "error";
+					}
+				}
+			}
+			st.push(x);
+		}
+		
+		if (i < splitedArray.length || st.size() > 1) {
+			JOptionPane.showMessageDialog(null, "Rechenzeichen Fehlt.");
+			return "error";
+		}
+		else {
+			return String.valueOf(st.pop());
+		}
 	}
 		
+	
+	public static int integerPow(int base, int exp) {
+		int res = 1;
+		if (exp == 0) {
+			res = 0;
+		}
+		else if (exp == 1) {
+			res = base;
+		}
+		// result would be decimal between 0 and 1
+		else if (exp < 0) {
+			res = 0;
+		}
+		for (int i = 0; i < exp; i++) {
+			res *= base;
+		}
+		
+		return res;
+	}
+	
 	
 	public static String twoComp(int i) {
 		int k = 2147483647;

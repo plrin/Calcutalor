@@ -10,12 +10,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class View implements Observer {
+public class View {
 	
 	// instance variables
 	protected JFrame frame;
-	private JComboBox numSystemComboBox;
-	private String numSystemArray [] = {"32 Bit Integer", "32 Bit Float"}; 
+	protected JComboBox numSystemComboBox;
+	private String numSystemArray [] = {"Integer", "Float"}; 
 	private JPanel loopPanel;
 	private JLabel loopLabel;
 	protected JTextField loopField;
@@ -103,11 +103,5 @@ public class View implements Observer {
 	
 	}
 
-
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

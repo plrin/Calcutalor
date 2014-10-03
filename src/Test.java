@@ -15,7 +15,7 @@ public class Test {
 
 	public static void main(String[] args) {
 		
-		
+		/*
 		Integer64 integer64 = Integer64.valueOf(14324);
 		System.out.println(integer64.opposite());
 		System.out.println(integer64.plus(23));
@@ -29,7 +29,7 @@ public class Test {
 	    System.out.println("sqrt(2)   = " + sqrt2);
 	    System.out.println("Precision = " + sqrt2.getPrecision() + " digits.");
 		
-		/*
+		
 		System.out.println("binary a");
 		String a = scanner.nextLine();
 		System.out.println("binary b");
@@ -46,7 +46,7 @@ public class Test {
 
 		for ( byte by : bs )
 		  System.out.println( Integer.toBinaryString(by & 0xFF) );
-		*/
+		
 	    int longer = Integer.MAX_VALUE+1;
 	    System.out.println("MAX_VALUE + 1: " + longer + " Bin: " + Integer.toBinaryString(longer));
 	    
@@ -71,8 +71,33 @@ public class Test {
 		
 		String [] str = {"+"}; 
 		textMatch(str[0]);
+		*/
+		double f = Math.pow(2, 31) ;
+		int x = 2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2;
+		System.out.println("double: " + f + " int: " + (int) f);
+		System.out.println(Integer.MAX_VALUE);
+		System.out.println(x);
 		
-		System.out.println(2 - 3);
+		System.out.println(integerPow(2,31)-1);
+		
+		System.out.println(2 / 3);
+	}
+	
+	public static int integerPow(int b, int e) {
+		int a = 1;
+		if (e == 0) {
+			a = 0;
+		}
+		else if (e == 1) {
+			a = b;
+		}
+		
+		for (int i = 0; i < e; i++) {
+			a *= b;
+		}
+		
+		return a;	
+		
 	}
 	
 	public static String twoComp(int i) {

@@ -13,6 +13,8 @@ public class Controller implements ActionListener {
 	// instance variables
 	private View view;
 	private String comboBox;
+	private String compString = "";
+	private String realString = "";
 
 	
 	public Controller() {
@@ -31,6 +33,8 @@ public class Controller implements ActionListener {
 		int compInt = 0;
 		String realOutput = "";
 		String compOutput = "";
+		compString = "";
+		realString = "";
 		
 		if (comboBox.equals("Integer")) {
 			try {
@@ -44,6 +48,8 @@ public class Controller implements ActionListener {
 				compOutput = String.valueOf(compInt);
 			}
 			catch (Exception exc) {
+				JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich"
+						+ "[-2^31 = -2.147.483.648 bis 2^31-1 = 2.147.483.647].\n" + e );
 				realOutput = "error";
 				compOutput = "error";
 			}	
@@ -57,49 +63,21 @@ public class Controller implements ActionListener {
 		
 		view.realResultTextField.setText(realOutput);
 		view.compResultTextField.setText(compOutput);
+		view.textArea.setText(printText());
 	}
 		
 
 
 	/* start of methods */
 	
-	public void focusInput () {
-		view.frame.addWindowListener (new WindowAdapter() {
-			public void windowOpened(WindowEvent e) {
-				view.inputField.requestFocus();
-			}
-		});
-	}
-	
-	public int getLoop() {
-		String textField = view.loopField.getText();
-		int numberOfLoops = 0;
-		try {
-			numberOfLoops = Integer.parseInt(textField);
-		}
-		catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(null, "Keine gueltige Nummer!\n" + e);
-		}
-		return numberOfLoops;
-	}
-	
-	
-	public String getInput() {
-		return view.inputField.getText();
-	}
-	
-	
-	public String getComboBox() {
-		comboBox = (String) view.numSystemComboBox.getSelectedItem();
-		return comboBox;
-	}
-	
-	
+	/* calculation of Integer and Big Integer */
+	/* computer arithmetic */
 	public String integerRPN() {
 		String string = getInput();
 		String tk;
 		Stack<Integer> st = new Stack<Integer>(); 
-		int a, b, x = 0, i; // a and b are stack numbers to pop, x input/result number to push
+		// a and b are stack numbers to pop, x input/result number to push
+		int a = 0, b = 0, x = 0, i; 
 		String [] splitedArray = string.split("\\s");
 		
 		for (i = 0; i < splitedArray.length; i++) {
@@ -109,7 +87,8 @@ public class Controller implements ActionListener {
 			}
 			else {
 				if (tk.length() < 1 || st.size() < 2 ) {
-					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\noder\nZahl fehlt.");
+					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\n"
+							+ "oder\nZahl fehlt.");
 					return "error";
 				}
 				else {
@@ -134,9 +113,14 @@ public class Controller implements ActionListener {
 						JOptionPane.showMessageDialog(null, "Fehler.");
 						 return "error";
 					}
+					// convert to bin and save in string
+					compString += "   " + twosComplement(b) + " (" + b + ")" + "\n" + tk + " " + 
+					twosComplement(a) + " (" + a + ")" + "\n   --------------------------------\n   " + 
+					twosComplement(x) + " (" + x + ")" + "\n\n";
 				}
 			}
 			st.push(x);
+			
 		}
 		
 		if (i < splitedArray.length || st.size() > 1) {
@@ -148,24 +132,27 @@ public class Controller implements ActionListener {
 		}
 	}
 	
-	
+	/* real/human arithmetic */
 	public String bigIntegerRPN() {
 		String string = getInput();
 		String tk;
 		Stack<BigInteger> st = new Stack<BigInteger>();
 		int i; 
+		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
-		BigInteger a, b , x = new BigInteger("0"); 
+		BigInteger a = new BigInteger("0"), b = new BigInteger("0") , x = new BigInteger("0"); 
 		String [] splitedArray = string.split("\\s");
 		
 		for (i = 0; i < splitedArray.length; i++) {
 			tk = splitedArray[i];
 			if (tk.matches("^[+-]?(\\d+)$")) {
 				x = new BigInteger(tk);
+				isNumber = true;
 			}
 			else {
 				if (tk.length() < 1 || st.size() < 2 ) {
-					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\noder\nZahl fehlt.");
+					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\n"
+							+ "oder\nZahl fehlt.");
 					return "error";
 				}
 				else {
@@ -192,8 +179,17 @@ public class Controller implements ActionListener {
 						 return "error";
 					}
 				}
+				isNumber = false;
 			}
 			st.push(x);
+			// save operations into string
+			if(isNumber == true) {
+				realString += tk + "\t\tpush(" + tk + ")\t\t" + st.toString() + "\n";  
+			}
+			else {
+				realString += tk + "\t\t" + b + tk + a + "\n\t\tpush(" + x + ")\t\t" + 
+						st.toString() + "\t\t" + checkOverflow(x) + "\n";
+			}
 		}
 		
 		if (i < splitedArray.length || st.size() > 1) {
@@ -205,7 +201,67 @@ public class Controller implements ActionListener {
 		}
 	}
 		
+	/* end of Integer and Big Integer calculation */ 
 	
+	/*--------------------------------------------- */
+	
+	/* start of float and big float calculation */
+	/* computer arithmetic */
+	public String floatRPN() {
+		
+		return null;
+	}
+	
+	
+	/* real/human arithmetic */
+	public String bigFloatRPN() {
+		
+		return null;
+	}
+	
+	/* end of float and big float calculation */
+	
+	/* --------------------------------------------- */
+	
+	/* functions used in/for the calculation of integer and float */
+	
+	
+	public void focusInput () {
+		view.frame.addWindowListener (new WindowAdapter() {
+			public void windowOpened(WindowEvent e) {
+				view.inputField.requestFocus();
+			}
+		});
+	}
+	
+	
+	/* get the number of loops which were entered before */
+	public int getLoop() {
+		String textField = view.loopField.getText();
+		int numberOfLoops = 0;
+		try {
+			numberOfLoops = Integer.parseInt(textField);
+		}
+		catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(null, "Keine gueltige Nummer im Loop!\n" + e);
+		}
+		return numberOfLoops;
+	}
+	
+	
+	public String getInput() {
+		return view.inputField.getText();
+	}
+	
+	
+	/* get the type of datatype to calculate */
+	public String getComboBox() {
+		comboBox = (String) view.numSystemComboBox.getSelectedItem();
+		return comboBox;
+	}
+	
+	
+	/* exponential function for integer */
 	public static int integerPow(int base, int exp) {
 		int res = 1;
 		if (exp == 0) {
@@ -226,16 +282,35 @@ public class Controller implements ActionListener {
 	}
 	
 	
-	public static String twoComp(int i) {
-		int k = 2147483647;
+	/* convert an integer to a two's Complement with 32 Bits, each digit will be shown */
+	public static String twosComplement(int i) {
 		String output;
-		//long k = 2147483648l;
-		if (i >= k) {
-			i -= 2 * k;
-		}
 		output = String.format("%32s", Integer.toBinaryString(i)).replace(' ', '0');
-		System.out.println(output);
 		return output;
 	}
+	
+	
+	/* prints a hint under "hinweis" if there is an overflow  */
+	public static String checkOverflow(BigInteger i) {
+		String output = "";
+		if(i.bitLength() > 31) {
+			output = "Overflow ";
+		}
+		else {
+			output = "";
+		}
 		
+		return output;
+	}
+	
+	
+	/* return the text for the textarea */
+	public String printText() {
+		String start = "Reale Arithmetik\n\nInput\t\tOperation\t\tStack\t\tHinweis\n";
+		String compStart = "-----------------------------------------------------"
+				+ "\nComputer-Arithmetik\n\n"; 
+		return start + realString + compStart + compString;
+	}
+		
+
 }

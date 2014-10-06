@@ -7,8 +7,13 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
 
 public class View {
 	
@@ -27,7 +32,9 @@ public class View {
 	protected JTextField realResultTextField;
 	private JLabel compResultLabel;
 	protected JTextField compResultTextField;
-	private JTextArea expArea;
+	private JPanel scrollPanel;
+	private JScrollPane scroll;
+	protected JTextArea textArea;
 	
 	
 	public View(Controller controller) {
@@ -89,12 +96,18 @@ public class View {
 		gbc.gridy = 3;
 		frame.add(compResultTextField, gbc);
 		
-		expArea = new JTextArea(20, 40);
-		expArea.setEditable(false);
+		scrollPanel = new JPanel();
+	    scrollPanel.setBorder(new TitledBorder(new EtchedBorder(), "Erklaerung"));
+	    textArea= new JTextArea(20, 55);
+		textArea.setEditable(false);
+
+		scroll = new JScrollPane(textArea);
+		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPanel.add(scroll);
 		gbc.gridwidth = 2;
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		frame.add(expArea, gbc);
+		frame.add(scrollPanel, gbc);
 		
 		frame.setSize(500, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,6 +115,4 @@ public class View {
 		frame.pack();	
 	
 	}
-
-
 }

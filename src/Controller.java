@@ -55,6 +55,22 @@ public class Controller implements ActionListener {
 			}	
 		}
 		else if (comboBox.equals("Float")) {
+			try {
+				//int x = Integer.parseInt(integerRPN());
+				//BigInteger y = new BigInteger(bigIntegerRPN());
+				for (int i = 0; i <= loops; i++) {
+					//realInt = realInt.add(y);
+					//compInt += x;
+				}
+				//realOutput = String.valueOf(realInt);
+				//compOutput = String.valueOf(compInt);
+			}
+			catch (Exception exc) {
+				JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich"
+						+ "[x nachkommastellen].\n" + e );
+				realOutput = "error";
+				compOutput = "error";
+			}	
 			
 		}
 		else {

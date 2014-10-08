@@ -9,80 +9,84 @@ import java.util.Stack;
 import javax.swing.JOptionPane;
 
 
-public class Controller implements ActionListener {
+public class Controller2 implements ActionListener {
 	
 	// instance variables
-	private View view;
+	private View2 view;
 	private String comboBox;
+	private String thermString = "";
 	private String compString = "";
 	private String realString = "";
 
 	
-	public Controller() {
-		this.view = new View(this);
+	public Controller2() {
+		this.view = new View2(this);
 		
 	}
 	
 	// button action on click
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		int loops = getLoop();
-		comboBox = getComboBox();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			int loops = getLoop();
+			comboBox = getComboBox();
 
-		BigInteger realInt = new BigInteger("0");
-		int compInt = 0;
-		BigDecimal realDec = new BigDecimal("0");
-		float compFloat = 0f;
-		String realOutput = "";
-		String compOutput = "";
-		compString = "";
-		realString = "";
-		
-		if (comboBox.equals("Integer")) {
-			try {
-				int x = Integer.parseInt(integerRPN());
-				BigInteger y = new BigInteger(bigIntegerRPN());
-				for (int i = 0; i <= loops; i++) {
-					realInt = realInt.add(y);
-					compInt += x;
-				}
-				realOutput = String.valueOf(realInt);
-				compOutput = String.valueOf(compInt);
-			}
-			catch (Exception exc) {
-				JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich\n"
-						+ "[-2^31 = -2.147.483.648 bis 2^31-1 = 2.147.483.647].\n" + e );
-				realOutput = "error";
-				compOutput = "error";
-			}	
-		}
-		else if (comboBox.equals("Float")) {
-			try {
-				float x = Float.parseFloat(floatRPN());
-				BigDecimal y = new BigDecimal(bigDecimalRPN());
-				for (int i = 0; i <= loops; i++) {
-					realDec = realDec.add(y);
-					compFloat += x;
-				}
-				realOutput = String.valueOf(realDec);
-				compOutput = String.valueOf(compFloat);
-			}
-			catch (Exception exc) {
-				JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich"
-						+ "[x nachkommastellen].\n" + e );
-				realOutput = "error";
-				compOutput = "error";
-			}	
+			BigInteger realInt = new BigInteger("0");
+			int compInt = 0;
+			BigDecimal realDec = new BigDecimal("0");
+			float compFloat = 0f;
+			String realOutput = "";
+			String compOutput = "";
+			thermString = "";
+			compString = "";
+			realString = "";
 			
-		}
-		else {
-			JOptionPane.showMessageDialog(null, "Combobox Fehler.");
-		}
+			if (comboBox.equals("Integer")) {
+				try {
+					int x = Integer.parseInt(integerRPN());
+					BigInteger y = new BigInteger(bigIntegerRPN());
+					for (int i = 0; i <= loops; i++) {
+						realInt = realInt.add(y);
+						compInt += x;
+					}
+					realOutput = String.valueOf(realInt);
+					compOutput = String.valueOf(compInt);
+				}
+				catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich\n"
+							+ "[-2^31 = -2.147.483.648 bis 2^31-1 = 2.147.483.647].\n" + e );
+					realOutput = "error";
+					compOutput = "error";
+				}	
+			}
+			else if (comboBox.equals("Float")) {
+				try {
+					float x = Float.parseFloat(floatRPN());
+					BigDecimal y = new BigDecimal(bigDecimalRPN());
+					for (int i = 0; i <= loops; i++) {
+						realDec = realDec.add(y);
+						compFloat += x;
+					}
+					realOutput = String.valueOf(realDec);
+					compOutput = String.valueOf(compFloat);
+				}
+				catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich"
+							+ "[x nachkommastellen].\n" + e );
+					realOutput = "error";
+					compOutput = "error";
+				}	
+				
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Combobox Fehler.");
+			}
 		
-		view.realResultTextField.setText(realOutput);
-		view.compResultTextField.setText(compOutput);
-		view.textArea.setText(printText());
+		view.realOutput.setText(realOutput);
+		view.compOutput.setText(compOutput);
+		view.thermTextArea.setText(printTherm());
+		view.realTextArea.setText(printReal());
+		view.compTextArea.setText(printComp());
 	}
 		
 
@@ -197,11 +201,17 @@ public class Controller implements ActionListener {
 						JOptionPane.showMessageDialog(null, "Fehler.");
 						 return "error";
 					}
+					// convert to bin and save in string 
+					// ==> not working right atm
+					realString += "   " + b.toString(2) + " (" + b + ")" + "\n" + tk + " " + 
+					a.toString(2) + " (" + a + ")" + "\n   --------------------------------\n   " + 
+					x.toString(2) + " (" + x + ")" + "\n\n";
 				}
 				isNumber = false;
 			}
 			st.push(x);
 			// save operations into string
+			//
 			String tmpTk = tk;
 			tk = x.toString();
 			String tmp = "";
@@ -210,10 +220,10 @@ public class Controller implements ActionListener {
 			}
 			
 			if(isNumber == true) {
-				realString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
+				thermString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
 			}
 			else {
-				realString += tmpTk + "\t\t" + b + tmpTk + a + "\n\t\tpush(" + x + ")\t" +
+				thermString += tmpTk + "\t\t" + b + tmpTk + a + "\n\t\tpush(" + x + ")\t" +
 						tmp + st.toString() + "\t\t" + checkOverflow(x) + "\n";
 			}
 			// end of string save
@@ -349,6 +359,10 @@ public class Controller implements ActionListener {
 						JOptionPane.showMessageDialog(null, "Fehler.");
 						 return "error";
 					}
+					// convert bigdec to bin and save in string
+					realString += "   " + bigDec2Bin(b) + " (" + b + ")" + "\n" + tk + " " + 
+						bigDec2Bin(a) + " (" + a + ")" + "\n   --------------------------------\n   " + 
+						bigDec2Bin(x) + " (" + x + ")" + "\n\n";
 				}
 				isNumber = false;
 			}
@@ -362,10 +376,10 @@ public class Controller implements ActionListener {
 			}
 			
 			if(isNumber == true) {
-				realString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
+				thermString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
 			}
 			else {
-				realString += tmpTk + "\t\t" + b + tmpTk + a + "\n\t\tpush(" + x + ")\t" +
+				thermString += tmpTk + "\t\t" + b + tmpTk + a + "\n\t\tpush(" + x + ")\t" +
 						tmp + st.toString() + "\t\t" + "" + "\n";
 			}
 			// end of string save
@@ -415,7 +429,7 @@ public class Controller implements ActionListener {
 	}
 	
 	
-	/* get the type of datatype to calculate */
+	/* get the type of data type to calculate with */
 	public String getComboBox() {
 		comboBox = (String) view.numSystemComboBox.getSelectedItem();
 		return comboBox;
@@ -450,6 +464,15 @@ public class Controller implements ActionListener {
 		return output;
 	}
 	
+	/* convert BigDecimal to Binary */
+	public static String bigDec2Bin(BigDecimal i) {
+		String s = i.toString();
+		float f = Float.valueOf(s);
+		s = float2bin(f);
+		
+		return s;
+	}
+	
 	/* convert float to binary representation IEEE 754 */
 	public static String float2bin(float f) {
 		String str = new String("");
@@ -473,14 +496,21 @@ public class Controller implements ActionListener {
 		return output;
 	}
 	
-	
-	/* return the text for the textarea */
-	public String printText() {
+	// functions for saving strings to print
+	public String printTherm() {
 		String start = "Reale Arithmetik\n\nInput\t\tOperation\t\tStack\t\tHinweis\n";
-		String compStart = "-----------------------------------------------------"
-				+ "\nComputer-Arithmetik\n\n"; 
-		return start + realString + compStart + compString;
+
+		return start + thermString;
 	}
-		
+	
+	public String printReal() {
+		String realStart = "Reale Arithmetik\n\n";
+		return realStart + realString;
+	}
+	
+	public String printComp() {
+		String compStart = "Computer-Arithmetik\n\n"; 
+		return compStart + compString;
+	}	
 
 }

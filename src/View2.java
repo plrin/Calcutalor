@@ -75,7 +75,7 @@ public class View2 {
 		
 		// Row = 1
 		thermPanel = new JPanel(new GridLayout(2,0));
-		inputLabel = new JLabel("Therm");
+		inputLabel = new JLabel("Eingabe");
 		inputField = new JTextField(20);
 		thermPanel.add(inputLabel);
 		thermPanel.add(inputField);
@@ -84,7 +84,7 @@ public class View2 {
 		frame.add(thermPanel, gbc);
 		
 		scrollPanel1 = new JPanel();
-	    scrollPanel1.setBorder(new TitledBorder(new EtchedBorder(), "Berechnung"));
+	    scrollPanel1.setBorder(new TitledBorder(new EtchedBorder(), "Berechnung im Dezimalsystem"));
 		
 		thermTextArea = new JTextArea(10, 55);
 		thermTextArea.setEditable(false);
@@ -110,7 +110,7 @@ public class View2 {
 		frame.add(realPanel, gbc);
 		
 		scrollPanel2 = new JPanel();
-	    scrollPanel2.setBorder(new TitledBorder(new EtchedBorder(), "richtig Binaer"));
+	    scrollPanel2.setBorder(new TitledBorder(new EtchedBorder(), "richtige Berechnung im Binaersystem"));
 		
 		realTextArea = new JTextArea(10, 55);
 		realTextArea.setEditable(false);
@@ -136,7 +136,7 @@ public class View2 {
 		frame.add(compPanel, gbc);
 		
 		scrollPanel3 = new JPanel();
-	    scrollPanel3.setBorder(new TitledBorder(new EtchedBorder(), "Binaer Computer"));
+	    scrollPanel3.setBorder(new TitledBorder(new EtchedBorder(), "Computer Berechnung im Binaersystem"));
 		
 		compTextArea = new JTextArea(10, 55);
 		compTextArea.setEditable(false);

@@ -1,5 +1,5 @@
 Dieses Java Programm ist ein Simulator zur Darstellung der internen
-Zahlendarstellung und Berechnung von Computer.
+Zahlendarstellung und Berechnungen im Computer.
 
 Die Eingabe eines Thermes erfolgt als Post-Fix Notation (umgekehrte polnische
 Notation).

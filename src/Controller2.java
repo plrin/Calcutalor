@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
+import org.nevec.rjm.BigDecimalMath;
 
 public class Controller2 implements ActionListener {
 	
@@ -19,7 +20,7 @@ public class Controller2 implements ActionListener {
 	private String thermString = "";
 	private String compString = "";
 	private String realString = "";
-
+	
 	
 	public Controller2() {
 		this.view = new View2(this);
@@ -70,15 +71,18 @@ public class Controller2 implements ActionListener {
 		view.realOutput.setText(realOutput);
 		view.compOutput.setText(compOutput);
 		view.thermTextArea.setText(printTherm());
-		view.realTextArea.setText(printReal());
-		view.compTextArea.setText(printComp());
+		view.realTextPane.setText(printReal());
+		view.compTextPane.setText(printComp());
 	}
 		
 
 
 	/* start of methods */
 	
-	/* calculation of Integer and Big Integer */
+	/* 
+	 * calculation of Integer and Big Integer 
+	 */
+		
 	/* computer arithmetic */
 	public String integerRPN() {
 		String string = getInput();
@@ -129,9 +133,10 @@ public class Controller2 implements ActionListener {
 						 return "error";
 					}
 					// convert to bin and save in string
-					compString += "   " + twosComplement(b) + " (" + b + ")" + "\n" + tk + " " + 
-					twosComplement(a) + " (" + a + ")" + "\n   --------------------------------\n   " + 
-					twosComplement(x) + " (" + x + ")" + "\n\n";	
+					compString += "   " + " (" + b + ") " + twosComplement(b)  + "\n" + tk + 
+							" (" + a + ") " + twosComplement(a) + 
+							"\n   -------------------------------------\n   " + 
+							" (" + x + ") " + twosComplement(x) + "\n\n";	
 				}
 			}
 			st.push(x);
@@ -200,9 +205,10 @@ public class Controller2 implements ActionListener {
 					}
 					// convert to bin and save in string 
 					// ==> not working right atm
-					realString += "   " + b.toString(2) + " (" + b + ")" + "\n" + tk + " " + 
-					a.toString(2) + " (" + a + ")" + "\n   --------------------------------\n   " + 
-					x.toString(2) + " (" + x + ")" + "\n\n";
+					realString += " (" + b + ") " + b.toString(2) + "\n" + tk + 
+							" (" + a + ") " + a.toString(2) + 
+							"\n   -------------------------------------\n   " + 
+							" (" + x + ") " + x.toString(2) + "\n\n";
 				}
 				isNumber = false;
 			}
@@ -240,7 +246,10 @@ public class Controller2 implements ActionListener {
 	
 	/*--------------------------------------------- */
 	
-	/* start of float and big float calculation */
+	/* 
+	 * start of float and big float calculation
+	 */
+	
 	/* computer arithmetic */
 	public String floatRPN() {
 		String string = getInput();
@@ -259,18 +268,41 @@ public class Controller2 implements ActionListener {
 		
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$")) {
-				x = Float.parseFloat(tk);
+			if (tk.matches("^[+-]?((\\.\\d+|\\d+(\\.\\d+)?)?|pi?|e?){1}$")) {
+				if (tk.equals("pi")) {
+					x = 3.1315927f;
+				}
+				else if (tk.equals("e")) {
+					x = 2.7182817f;
+				}
+				else {
+					x = Float.parseFloat(tk);
+				}	
 			}
+			// operators: + - * / 1 ^
 			else {
 				if (tk.length() < 1 || st.size() < 2 ) {
 					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\n"
 							+ "oder\nZahl fehlt.");
 					return "error";
 				}
+				
+				
 				else {
 					a = st.pop();
 					b = st.pop();
+					/*if (tk.equals("sin")) {
+						x = (float) Math.sin(a);
+						st.push(b);
+					}
+					else if (tk.equals("cos")) {
+						x = (float) Math.cos(a);
+						st.push(b);
+					}
+					else if (tk.equals("tan")) {
+						x = (float) Math.tan(a);
+						st.push(b);
+					}*/
 					if (tk.equals("+")) {
 						x = b + a;
 					}
@@ -292,13 +324,13 @@ public class Controller2 implements ActionListener {
 						 return "error";
 					}
 					// convert to bin and save in string
-					compString += "   " +  float2bin(b) + " (" + b + ")" + "\n" + tk + " " + 
-						float2bin(a) + " (" + a + ")" + "\n   --------------------------------\n   " + 
-						float2bin(x) + " (" + x + ")" + "\n\n";
+					compString += " (" + b + ") " +  float2bin(b) +  "\n" + tk + 
+							" (" + a + ") " + float2bin(a) +  
+						"\n   -------------------------------------\n   " + 
+						" (" + x + ") " + float2bin(x) + "\n\n";
 				}
 			}
-			st.push(x);
-			
+			st.push(x);	
 		}
 		
 		if (i < splitArray.length || st.size() > 1) {
@@ -356,18 +388,17 @@ public class Controller2 implements ActionListener {
 						x = b.divide(a);
 					}
 					else if (tk.equals("^")) {
-						int an = a.intValue();
-						x = b.pow(an);
-						System.out.print(x);
+						x = bigDecPow(b, a);
 					}
 					else {
 						JOptionPane.showMessageDialog(null, "Fehler.");
 						 return "error";
 					}
 					// convert bigdec to bin and save in string
-					realString += "   " + bigDec2Bin(b) + " (" + b + ")" + "\n" + tk + " " + 
-						bigDec2Bin(a) + " (" + a + ")" + "\n   --------------------------------\n   " + 
-						bigDec2Bin(x) + " (" + x + ")" + "\n\n";
+					realString += "   " + " (" + b + ") " + bigDec2Bin(b) + "\n" + tk + " " + 
+						" (" + a + ") " + bigDec2Bin(a) + 
+						"\n   -------------------------------------\n   " + 
+						" (" + x + ") " + bigDec2Bin(x) +  "\n\n";
 				}
 				isNumber = false;
 			}
@@ -464,7 +495,15 @@ public class Controller2 implements ActionListener {
 	
 	/* exponential function for float with non floating point exponent */
 	public static float floatPow(float base, float exp) {
-		float res = 1;
+		float res = 1f;
+		boolean isNegativ = false;
+		if (exp < 0) {
+			isNegativ = true;
+		}
+		else {
+			isNegativ = false;
+		}
+		
 		if (exp == 0) {
 			res = 0;
 		}
@@ -475,11 +514,32 @@ public class Controller2 implements ActionListener {
 		for (int i = 0; i < Math.abs(exp); i++) {
 			res *= base;
 		}
-		if (exp < 0) {
+		if (isNegativ == true) {
 			res = 1 / res;
 		}
 		
 		return res;
+	}
+	
+	/* exponential function for big decimal */
+	public static BigDecimal bigDecPow(BigDecimal base, BigDecimal exp) {
+		BigDecimal res = new BigDecimal("1");
+		boolean isNegativ = false;
+		if (exp.compareTo(new BigDecimal("0")) == -1) {
+			isNegativ = true;
+		} 
+		else {
+			isNegativ = false;
+		}
+		
+		exp = exp.abs();
+		int i = exp.intValueExact();
+		res = base.pow(i);
+		if (isNegativ == true) {
+			res = new BigDecimal("1").divide(res);
+		}	
+		
+		return res;	
 	}
 	
 	/* convert an integer to a two's Complement with 32 Bits, each digit will be shown */
@@ -531,12 +591,12 @@ public class Controller2 implements ActionListener {
 	}
 	
 	public String printReal() {
-		String realStart = "Reale Arithmetik\n\n";
+		String realStart = "\n";
 		return realStart + realString;
 	}
 	
 	public String printComp() {
-		String compStart = "Computer-Arithmetik\n\n"; 
+		String compStart = "\n"; 
 		return compStart + compString;
 	}	
 

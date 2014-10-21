@@ -8,9 +8,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 
 public class View2 {
@@ -38,8 +41,9 @@ public class View2 {
 	private JScrollPane scroll3;
 		
 	protected JTextArea thermTextArea;
-	protected JTextArea realTextArea;
-	protected JTextArea compTextArea;
+	
+	protected JTextPane realTextPane;
+	protected JTextPane compTextPane;
 	
 	private JPanel thermPanel;
 	private JPanel realPanel;
@@ -47,9 +51,15 @@ public class View2 {
 	
 	
 	public View2(Controller2 controller) {
+		
+		// frame attributes 
 		frame = new JFrame("Rechner");
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
+		
+		// style attributes
+		SimpleAttributeSet style = new SimpleAttributeSet();  
+		StyleConstants.setAlignment(style , StyleConstants.ALIGN_RIGHT); 
 		
 		// Row = 0
 		numSystemComboBox = new JComboBox(numSystemArray);
@@ -112,10 +122,15 @@ public class View2 {
 		scrollPanel2 = new JPanel();
 	    scrollPanel2.setBorder(new TitledBorder(new EtchedBorder(), "richtige Berechnung im Binaersystem"));
 		
-		realTextArea = new JTextArea(10, 55);
-		realTextArea.setEditable(false);
-		scroll2 = new JScrollPane(realTextArea);
+		
+		realTextPane = new JTextPane();
+		realTextPane.setMargin(new Insets(5,5,5,5));
+		realTextPane.setBounds(0, 0, 10, 55);
+		realTextPane.setEditable(false);
+		realTextPane.setParagraphAttributes(style, true);
+		scroll2 = new JScrollPane(realTextPane);
 		scroll2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scroll2.setPreferredSize(new Dimension(680,160));
 		scrollPanel2.add(scroll2);
 		gbc.gridwidth = 2;
 		gbc.gridx = 1;
@@ -123,8 +138,7 @@ public class View2 {
 		frame.add(scrollPanel2, gbc);
 		
 		// Row = 3
-		compPanel = new JPanel(new GridLayout(2,1));
-		
+		compPanel = new JPanel(new GridLayout(2,1));	
 		compLabel = new JLabel("Computer Ergebnis");
 		compOutput = new JTextField(20);
 		compOutput.setEditable(false);
@@ -138,9 +152,13 @@ public class View2 {
 		scrollPanel3 = new JPanel();
 	    scrollPanel3.setBorder(new TitledBorder(new EtchedBorder(), "Computer Berechnung im Binaersystem"));
 		
-		compTextArea = new JTextArea(10, 55);
-		compTextArea.setEditable(false);
-		scroll3 = new JScrollPane(compTextArea);
+	    compTextPane = new JTextPane();
+		compTextPane.setBounds(0, 0, 10, 55);
+		compTextPane.setMargin(new Insets(5,5,5,5));
+		compTextPane.setEditable(false);
+		compTextPane.setParagraphAttributes(style, true);
+		scroll3 = new JScrollPane(compTextPane);
+		scroll3.setPreferredSize(new Dimension(680,160));
 		scroll3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPanel3.add(scroll3);
 		gbc.gridwidth = 2;

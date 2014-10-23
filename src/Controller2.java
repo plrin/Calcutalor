@@ -4,6 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
@@ -52,6 +53,9 @@ public class Controller2 implements ActionListener {
 				}	
 			}
 			else if (comboBox.equals("Float")) {
+				realOutput = String.valueOf(bigDecimalRPN());
+				compOutput = String.valueOf(floatRPN());
+				/*
 				try {
 					realOutput = String.valueOf(bigDecimalRPN());
 					compOutput = String.valueOf(floatRPN());
@@ -62,7 +66,7 @@ public class Controller2 implements ActionListener {
 					
 					realOutput = "error";
 					compOutput = "error";
-				}		
+				}*/		
 			}
 			else {
 				JOptionPane.showMessageDialog(null, "Combobox Fehler.");
@@ -205,10 +209,10 @@ public class Controller2 implements ActionListener {
 					}
 					// convert to bin and save in string 
 					// ==> not working right atm
-					realString += " (" + b + ") " + b.toString(2) + "\n" + tk + 
-							" (" + a + ") " + a.toString(2) + 
+					realString += " (" + b + ") " + bigInteger2bin(b) + "\n" + tk + 
+							" (" + a + ") " + bigInteger2bin(a) + 
 							"\n   -------------------------------------\n   " + 
-							" (" + x + ") " + x.toString(2) + "\n\n";
+							" (" + x + ") " + bigInteger2bin(x) + "\n\n";
 				}
 				isNumber = false;
 			}
@@ -261,14 +265,14 @@ public class Controller2 implements ActionListener {
 		String [] splitArray = string.split("\\s");
 		
 		// checking for loops, if true then extend array
-		int loops = getLoop();
-		if (loops > 0) {
-			splitArray = addLoop(splitArray);
-		}
+		//int loops = getLoop();
+		//if (loops > 0) {
+		//	splitArray = addLoop(splitArray);
+		//}
 		
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?((\\.\\d+|\\d+(\\.\\d+)?)?|pi?|e?){1}$")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e")) {
 				if (tk.equals("pi")) {
 					x = 3.1315927f;
 				}
@@ -281,17 +285,17 @@ public class Controller2 implements ActionListener {
 			}
 			// operators: + - * / 1 ^
 			else {
-				if (tk.length() < 1 || st.size() < 2 ) {
+				/*if (tk.length() < 1 || st.size() < 2 ) {
 					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\n"
 							+ "oder\nZahl fehlt.");
 					return "error";
-				}
+				}*/
 				
 				
-				else {
-					a = st.pop();
+				//else {
+					/*a = st.pop();
 					b = st.pop();
-					/*if (tk.equals("sin")) {
+					if (tk.equals("sin")) {
 						x = (float) Math.sin(a);
 						st.push(b);
 					}
@@ -302,7 +306,7 @@ public class Controller2 implements ActionListener {
 					else if (tk.equals("tan")) {
 						x = (float) Math.tan(a);
 						st.push(b);
-					}*/
+					}
 					if (tk.equals("+")) {
 						x = b + a;
 					}
@@ -320,8 +324,29 @@ public class Controller2 implements ActionListener {
 						
 					}
 					else {
-						JOptionPane.showMessageDialog(null, "Fehler.");
-						 return "error";
+						JOptionPane.showMessageDialog(null, "Rechenzeichen nicht gueltig.");
+					}*/
+					if (tk.matches("^for{1}\\d+$")) {
+						int loops = Integer.valueOf(tk.replace("for", ""));
+						tk = splitArray[i+1]; // take the token behind "for" from the array
+						a = st.pop(); // pop the numbers
+						b = st.pop();
+						for (int j = 0; j < loops; j++) {
+							a += evalFloat(a,a,tk);
+							//a = a.add(evalBigDec(a,a,tk));	
+						}
+						x = evalFloat(b,a,tk);
+						i++;
+					}
+					else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
+						a = st.pop();
+						b = st.pop();
+						x = evalFloat(b,a,tk);
+					}
+					else if (tk.matches("sin|cos|tan")) {
+						a = st.pop();
+						b = 0;
+						x = evalFloat(a,b,tk);
 					}
 					// convert to bin and save in string
 					compString += " (" + b + ") " +  float2bin(b) +  "\n" + tk + 
@@ -329,7 +354,7 @@ public class Controller2 implements ActionListener {
 						"\n   -------------------------------------\n   " + 
 						" (" + x + ") " + float2bin(x) + "\n\n";
 				}
-			}
+			//}
 			st.push(x);	
 		}
 		
@@ -342,40 +367,80 @@ public class Controller2 implements ActionListener {
 		}
 	}
 	
+	public static float evalFloat(float b, float a, String tk) {
+		float x = 0;
+		if (tk.equals("+")) {
+			x = b + a;
+		}
+		else if (tk.equals("-")) {
+			x = b - a;
+		}
+		else if (tk.equals("*")) {
+				x = b * a;
+		}
+		else if (tk.equals("/")){
+			x = b / a;
+		}
+		else if (tk.equals("^")) {
+			x = floatPow(b,a);
+		}
+		else if (tk.equals("sin")) {
+			x = (float) Math.sin(b);
+		}
+		else if (tk.equals("cos")) {
+			x = (float) Math.cos(b);
+		}
+		else if (tk.equals("tan")) {
+			x = (float) Math.tan(b);
+		}		
+		else {
+			JOptionPane.showMessageDialog(null, "Rechenzeichen nicht gueltig.");
+		}
+		
+		return x;
+	}
+	
 	
 	/* real/human arithmetic */
 	public String bigDecimalRPN() {
 		String string = getInput();
-		String tk;
+		String tk = "";
 		Stack<BigDecimal> st = new Stack<BigDecimal>();
 		int i; 
 		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
-		BigDecimal a = new BigDecimal("0"), b = new BigDecimal("0") , x = new BigDecimal("0.2"); 
+		BigDecimal a = new BigDecimal("0"), b = new BigDecimal("0") , x = new BigDecimal("0"); 
 		String [] splitArray = string.split("\\s");
 		
 		// checking for loops, if true then extend array
-		int loops = getLoop();
-		if (loops > 0) {
-			splitArray = addLoop(splitArray);
-		}		
+		//int loops = getLoop();
+		//if (loops > 0) {
+		//	splitArray = addLoop(splitArray);
+		//}		
 		
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$")) {
-				x = new BigDecimal(tk);
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e")) {
+				if (tk.equals("pi")) {
+					x = BigDecimalMath.pi(new MathContext(10));
+				}
+				else if (tk.equals("e")) {
+					x = new BigDecimal("2.7182817");
+				}
+				else {
+					x = new BigDecimal(tk);
+				}	
 				isNumber = true;
-			}
+			}	
 			else {
-				if (tk.length() < 1 || st.size() < 2 ) {
+				/*if (tk.length() < 1 || st.size() < 2 ) {
 					JOptionPane.showMessageDialog(null, "Ungueltiges Zeichen wurde gelesen\n"
 							+ "oder\nZahl fehlt.");
 					return "error";
 				}
-				else {
-					a = st.pop();
-					b = st.pop();
-					if (tk.equals("+")) {
+				else {*/
+					
+					/*if (tk.equals("+")) {
 						x = b.add(a);
 					}
 					else if (tk.equals("-")) {
@@ -393,13 +458,34 @@ public class Controller2 implements ActionListener {
 					else {
 						JOptionPane.showMessageDialog(null, "Fehler.");
 						 return "error";
+					}*/
+					if (tk.matches("^for{1}\\d+$")) {
+						int loops = Integer.valueOf(tk.replace("for", ""));
+						tk = splitArray[i+1]; // take the token next to "for" from the array
+						a = st.pop(); // pop the numbers
+						b = st.pop();
+						for (int j = 0; j < loops; j++) {
+							a = a.add(evalBigDec(a,a,tk));	
+						}
+						x = evalBigDec(b,a,tk);
+						i++;
+					}
+					else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
+						a = st.pop();
+						b = st.pop();
+						x = evalBigDec(b,a,tk);
+					}
+					else if (tk.matches("sin|cos|tan")) {
+						a = st.pop();
+						b = new BigDecimal("0");
+						x = evalBigDec(a,b,tk);
 					}
 					// convert bigdec to bin and save in string
 					realString += "   " + " (" + b + ") " + bigDec2Bin(b) + "\n" + tk + " " + 
 						" (" + a + ") " + bigDec2Bin(a) + 
 						"\n   -------------------------------------\n   " + 
 						" (" + x + ") " + bigDec2Bin(x) +  "\n\n";
-				}
+				//}
 				isNumber = false;
 			}
 			st.push(x);
@@ -429,6 +515,40 @@ public class Controller2 implements ActionListener {
 		else {
 			return String.valueOf(st.pop());
 		}
+	}
+	
+	public static BigDecimal evalBigDec(BigDecimal b, BigDecimal a, String tk) {
+		BigDecimal x = new BigDecimal("0");
+		
+		if (tk.equals("+")) {
+			x = b.add(a);
+		}
+		else if (tk.equals("-")) {
+			x = b.subtract(a);
+		}
+		else if (tk.equals("*")) {
+				x = b.multiply(a);
+		}
+		else if (tk.equals("/")){
+			x = b.divide(a);
+		}
+		else if (tk.equals("^")) {
+			x = bigDecPow(b, a);
+		}
+		else if (tk.equals("sin")) {
+			x = BigDecimalMath.sin(b);
+		}
+		else if (tk.equals("cos")) {
+			x = BigDecimalMath.cos(b);
+		}
+		else if (tk.equals("tan")) {
+			x = BigDecimalMath.tan(b);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Operator nicht gueltig");
+		}
+		
+		return x;
 	}
 	
 	/* end of float and big decimal calculation */
@@ -546,6 +666,24 @@ public class Controller2 implements ActionListener {
 	public static String twosComplement(int i) {
 		String output;
 		output = String.format("%32s", Integer.toBinaryString(i)).replace(' ', '0');
+		return output;
+	}
+	
+	/* convert a long number into binary twos complement string */
+	public static String bigInteger2bin(BigInteger b) {
+		String output;
+		String str = "";
+
+		byte[] bs = b.toByteArray();
+		int k = 0;
+		for (int i = 0; i < bs.length; i++) {
+			System.out.print(String.format("%02X", 0xff & bs[i]));
+			str += String.format("%02X", 0xff & bs[i]); 
+			k++;
+		}
+		k = k*8;
+		String tmp = String.format("%"+k+"s", new BigInteger(str, 16).toString(2));
+		output = String.format("%"+k+"s", tmp.replace(" ", "0"));
 		return output;
 	}
 	

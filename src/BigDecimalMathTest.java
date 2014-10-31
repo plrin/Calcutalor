@@ -1,8 +1,9 @@
 
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 
+import org.jscience.mathematics.number.Float64;
+import org.jscience.mathematics.number.Real;
 import org.nevec.rjm.*;
 
 
@@ -27,8 +28,23 @@ public class BigDecimalMathTest {
 		float exp = 2.5f;
 		float floatPow = (float) Math.pow(Math.E,exp*Math.log(base));
 		System.out.println(floatPow);
-		BigDecimal ratPow = BigDecimalMath.powRound(new BigDecimal("1.21"), new Rational(5,2));		
-		System.out.println(ratPow);
+		// e^(exp*ln(base)
+		BigDecimal b = new BigDecimal("1.21");
+		BigDecimal e = new BigDecimal("2.5");
+		BigDecimal euler = new BigDecimal("2.71828182845904");
+		BigDecimal tmp = BigDecimalMath.log(b);
+		tmp = e.multiply(tmp);
+		
+		BigDecimal pow = BigDecimalMath.pow(euler, tmp);
+		System.out.println("einzeln: " + pow);
+		System.out.println("zusammen: " + BigDecimalMath.pow(b, e));
+		System.out.println("-------------------");
+		
+		Float64 f = Float64.valueOf(1.21);
+		System.out.println(f.pow(Float64.valueOf(2.5)));
+		
+		System.out.println(Math.pow(1.21, 2.5));
+		
 
 	}
 }

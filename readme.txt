@@ -19,10 +19,12 @@ Die Schleifen-Funktionen funktiert nur mit Zwei Zahlen
 			1 0.2 + 0.2 + 0.2 + 0.2 +
 
 
-Probleme die noch behoben werden müssen:
-- die Anzeige der richtigen Binären Berechnung bei Integer zeigt keine 
-	Binärzahlen im Zweikomplement an, sondern stellt bei negativen Zahlen ein
-	Minuszeichen voran
 
-- die Anzeige der richtigen Binären Berechnung bei Floating-Point hat
-	ebenfalls nur 32-Bit zur Darstellung
+Fehler und TO-DO:
+
+* BigDecimal binaerausgabe falsch, immer nur noch 32 bit, statt mehr
+* BigDecimal Exponential falsch/ungenau, immer nur 1-2 nachkommastellen oder falsches runden
+	durch Float64 von jscience Lösung möglich, aber Float 64 wäre das selbe wie double(?)
+* Schleife mit 1 100 i
+* Kontrollbefehle
+* GUI verbessern

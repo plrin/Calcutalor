@@ -19,8 +19,13 @@ public class Controller2 implements ActionListener {
 	private View2 view;
 	private String comboBox;
 	private String thermString = "";
-	private String compString = "";
-	private String realString = "";
+	private static String compString = "";
+	private static String realString = "";
+	// register for latest results
+	private int intLastX;
+	private BigInteger bigIntLastX;
+	private float floatLastX;
+	private BigDecimal bigDecLastX;
 	
 	
 	public Controller2() {
@@ -93,26 +98,40 @@ public class Controller2 implements ActionListener {
 		String tk;
 		Stack<Integer> st = new Stack<Integer>(); 
 		// a and b are stack numbers to pop, x input/result number to push
-		int a = 0, b = 0, x = 0, i; 
+		int a, b, x, i; 
 		String [] splitArray = string.split("\\s");
 		
 		for (i = 0; i < splitArray.length; i++) {
+			a = 0; b = 0; x = 0;
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\d+)$")) {
-				x = Integer.parseInt(tk);
+			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("last")) {
+				if (tk.equals("last")) {
+					x = intLastX;
+				}
+				else {
+					x = Integer.parseInt(tk);
+				}	
 			}
-			else {
+			else { // start of operations
 				if (tk.matches("^for{1}\\d+$")) {
 					int loops = Integer.valueOf(tk.replace("for", ""));
 					tk = splitArray[i+1]; // take the token behind "for" from the array
 					a = st.pop(); // pop the numbers
 					b = st.pop();
 					x = evalInt(b,a,tk);
-					saveCompStringInteger(a,b,x,tk);
 					for (int j = 0; j < loops; j++) {
 						int tmp = x;
-						x = evalInt(x,a,tk);
-						saveCompStringInteger(a,tmp,x,tk);
+						x = evalInt(tmp,a,tk);
+					}
+					i++;
+				}
+				else if (tk.matches("^i{1}\\d+$")) {
+					int loops = Integer.valueOf(tk.replace("i", ""));
+					tk = splitArray[i+1];
+					a = st.pop();
+					for(int j = 1; j < loops; j++) {
+						int tmp = evalInt(a,j,tk);
+						x = evalInt(tmp,x,"+");
 					}
 					i++;
 				}
@@ -120,7 +139,6 @@ public class Controller2 implements ActionListener {
 					a = st.pop();
 					b = st.pop();
 					x = evalInt(b,a,tk);
-					saveCompStringInteger(a,b,x,tk);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
@@ -134,6 +152,7 @@ public class Controller2 implements ActionListener {
 			return "error";
 		}
 		else {
+			intLastX = st.peek();
 			return String.valueOf(st.pop());
 		}
 	}
@@ -158,6 +177,8 @@ public class Controller2 implements ActionListener {
 		else {
 			JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 		}
+		saveCompStringInteger(a,b,x,tk);
+
 		return x;
 	}
 	
@@ -169,13 +190,19 @@ public class Controller2 implements ActionListener {
 		int i; 
 		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
-		BigInteger a = new BigInteger("0"), b = new BigInteger("0") , x = new BigInteger("0"); 
+		BigInteger a, b, x; 
 		String [] splitArray = string.split("\\s");
 		
 		for (i = 0; i < splitArray.length; i++) {
+			a = new BigInteger("0"); b = new BigInteger("0"); x = new BigInteger("0");
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\d+)$")) {
-				x = new BigInteger(tk);
+			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("last")) {
+				if (tk.equals("last")) {
+					x = bigIntLastX;
+				}
+				else {
+					x = new BigInteger(tk);
+				}
 				isNumber = true;
 			}
 			else {
@@ -185,11 +212,20 @@ public class Controller2 implements ActionListener {
 					a = st.pop(); // pop the numbers
 					b = st.pop();
 					x = evalBigInt(b,a,tk);
-					saveRealStringInteger(a,b,x,tk);
 					for (int j = 0; j < loops; j++) {
 						BigInteger tmp = x;
-						x = evalBigInt(x,a,tk);	
-						saveRealStringInteger(a,tmp,x,tk);
+						x = evalBigInt(tmp,a,tk);	
+					}
+					i++;
+				}
+				else if (tk.matches("^i{1}\\d+$")) {
+					int loops = Integer.valueOf(tk.replace("i", ""));
+					tk = splitArray[i+1];
+					a = st.pop();
+					for(int j = 1; j < loops; j++) {
+						BigInteger k = BigInteger.valueOf(Integer.valueOf(j));
+						BigInteger tmp = evalBigInt(a,k,tk);
+						x  = evalBigInt(tmp,x,"+");
 					}
 					i++;
 				}
@@ -197,7 +233,6 @@ public class Controller2 implements ActionListener {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigInt(b,a,tk);
-					saveRealStringInteger(a,b,x,tk);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
@@ -229,6 +264,7 @@ public class Controller2 implements ActionListener {
 			return "error";
 		}
 		else {
+			bigIntLastX = st.peek();
 			return String.valueOf(st.pop());
 		}
 	}
@@ -255,6 +291,8 @@ public class Controller2 implements ActionListener {
 		else {
 			JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 		}
+		saveRealStringInteger(a,b,x,tk);
+
 		return x;
 	}
 		
@@ -274,18 +312,22 @@ public class Controller2 implements ActionListener {
 		String tk;
 		Stack<Float> st = new Stack<Float>(); 
 		// a and b are stack numbers to pop, x input/result number to push
-		float a = 0f, b = 0f, x = 0f;
+		float a, b, x;
 		int i; 
 		String [] splitArray = string.split("\\s");
 		
 		for (i = 0; i < splitArray.length; i++) {
+			a = 0f; b = 0f; x = 0f;
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e|last")) {
 				if (tk.equals("pi")) {
 					x = 3.1415927f;
 				}
 				else if (tk.equals("e")) {
 					x = 2.7182817f;
+				}
+				else if(tk.equals("last")) {
+					x = floatLastX;
 				}
 				else {
 					x = Float.parseFloat(tk);
@@ -299,25 +341,54 @@ public class Controller2 implements ActionListener {
 					a = st.pop(); // pop the numbers
 					b = st.pop();
 					x = evalFloat(b,a,tk);
-					saveCompStringFloat(a,b,x,tk);
 					for (int j = 0; j < loops; j++) {
 						float tmp = x;
-						x = evalFloat(x,a,tk);
-						saveCompStringFloat(a,tmp,x,tk);
+						x = evalFloat(tmp,a,tk);
 					}
 					i++;
+				}
+				/*
+				else if(tk.matches("^i{1}\\d+$")) {
+					int loops = Integer.valueOf(tk.replace("i", ""));
+					tk = splitArray[i+1];
+					a = st.pop();
+					for(int j = 1; j < loops; j++) {
+						Float tmp = evalFloat(a,j,tk);
+						x = evalFloat(x,tmp,"+");
+					}
+					i++;
+				}
+				*/
+				else if(tk.matches("i")) {
+					float tmp;
+					float end = st.pop();
+					float start = st.pop();
+					a = Float.parseFloat(splitArray[i+1]);
+					tk = splitArray[i+2];
+					for(float j = start; j < end; j++) {
+						tmp = evalFloat(a, j, tk);
+						//x = 
+					}
+					
+					while(!tk.matches("end")) {
+						x = Float.parseFloat(splitArray[i+1]);
+						tk = splitArray[i+2];
+						for(float j = start; j < end; j++) {
+							//eval
+						}
+						
+						i = i + 2;
+					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalFloat(b,a,tk);
-					saveCompStringFloat(a,b,x,tk);
 				}
 				else if (tk.matches("sin|cos|tan")) {
 					a = st.pop();
 					b = 0;
 					x = evalFloat(a,b,tk);
-					saveCompStringFloat(a,b,x,tk);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
@@ -332,6 +403,7 @@ public class Controller2 implements ActionListener {
 			return "error";
 		}
 		else {
+			floatLastX = st.peek();
 			return String.valueOf(st.pop());
 		}
 	}
@@ -365,7 +437,8 @@ public class Controller2 implements ActionListener {
 		else {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen nicht gueltig.");
 		}
-		
+		saveCompStringFloat(a,b,x,tk);
+
 		return x;
 	}
 	
@@ -378,35 +451,48 @@ public class Controller2 implements ActionListener {
 		int i; 
 		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
-		BigDecimal a = new BigDecimal("0"), b = new BigDecimal("0") , x = new BigDecimal("0"); 
+		BigDecimal a, b, x; 
 		String [] splitArray = string.split("\\s");
 	
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e")) {
+			a = new BigDecimal("0"); b = new BigDecimal("0"); x = new BigDecimal("0");
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e|last")) {
 				if (tk.equals("pi")) {
 					x = BigDecimalMath.pi(new MathContext(14));
 				}
 				else if (tk.equals("e")) {
 					x = new BigDecimal("2.71828182845904");
 				}
+				else if (tk.equals("last")) {
+					x = bigDecLastX;
+				}
 				else {
 					x = new BigDecimal(tk);
 				}	
 				isNumber = true;
 			}	
-			else {
+			else { // operations
 				if (tk.matches("^for{1}\\d+$")) {
 					int loops = Integer.valueOf(tk.replace("for", ""));
 					tk = splitArray[i+1]; // take the token next to "for" from the array
 					a = st.pop(); // pop the numbers
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
-					saveRealStringFloat(a,b,x,tk);
 					for (int j = 0; j < loops; j++) {
 						BigDecimal tmp = x;
-						x = evalBigDec(x,a,tk);	
-						saveRealStringFloat(a,tmp,x,tk);
+						x = evalBigDec(tmp,a,tk);	
+					}
+					i++;
+				}
+				else if(tk.matches("^i{1}\\d+$")) {
+					int loops = Integer.valueOf(tk.replace("i", ""));
+					tk = splitArray[i+1];
+					a = st.pop();
+					for(int j = 1; j < loops; j++) {
+						BigDecimal k = new BigDecimal(j);
+						BigDecimal tmp = evalBigDec(a,k,tk);
+						x  = evalBigDec(tmp,x,"+");
 					}
 					i++;
 				}
@@ -414,13 +500,11 @@ public class Controller2 implements ActionListener {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
-					saveRealStringFloat(a,b,x,tk);
 				}
 				else if (tk.matches("sin|cos|tan")) {
 					a = st.pop();
 					b = new BigDecimal("0");
 					x = evalBigDec(a,b,tk);
-					saveRealStringFloat(a,b,x,tk);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
@@ -452,7 +536,8 @@ public class Controller2 implements ActionListener {
 			return "error";
 		}
 		else {
-			return String.valueOf(st.pop());
+			bigDecLastX = st.peek();
+			return st.pop().toString();
 		}
 	}
 	
@@ -469,7 +554,7 @@ public class Controller2 implements ActionListener {
 				x = b.multiply(a);
 		}
 		else if (tk.equals("/")){
-			x = b.divide(a);
+			x = b.divide(a, new MathContext(8));
 		}
 		else if (tk.equals("^")) {
 			x = bigDecPow(b, a);
@@ -486,6 +571,7 @@ public class Controller2 implements ActionListener {
 		else {
 			JOptionPane.showMessageDialog(null, "Operator nicht gueltig");
 		}
+		saveRealStringFloat(b,a,x,tk);
 		
 		return x;
 	}
@@ -658,7 +744,7 @@ public class Controller2 implements ActionListener {
 	}	
 	
 	// convert to bin and save in string
-	public void saveCompStringInteger(int a, int b, int x, String tk) {
+	public static void saveCompStringInteger(int a, int b, int x, String tk) {
 		compString += " (" + b + ") " + twosComplement(b)  + "\n" + tk + 
 				" (" + a + ") " + twosComplement(a) + 
 				"\n   -------------------------------------\n   " + 
@@ -667,7 +753,7 @@ public class Controller2 implements ActionListener {
 	}
 
 	// convert to bin and save in string 
-	public void saveRealStringInteger(BigInteger a, BigInteger b, BigInteger x, String tk) {
+	public static void saveRealStringInteger(BigInteger a, BigInteger b, BigInteger x, String tk) {
 			realString += " (" + b + ") " + bigInteger2bin(b) + "\n" + tk + 
 				" (" + a + ") " + bigInteger2bin(a) + 
 				"\n   -------------------------------------\n   " + 
@@ -675,7 +761,7 @@ public class Controller2 implements ActionListener {
 	}
 	
 	// convert to bin and save in string
-	public void saveCompStringFloat(float a, float b, float x, String tk) {
+	public static void saveCompStringFloat(float a, float b, float x, String tk) {
 		compString += " (" + b + ") " +  float2bin(b) +  "\n" + tk + 
 				" (" + a + ") " + float2bin(a) +  
 			"\n   -------------------------------------\n   " + 
@@ -683,7 +769,7 @@ public class Controller2 implements ActionListener {
 	}
 	
 	// convert bigdec to bin and save in string
-	public void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
+	public static void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
 		realString += "   " + " (" + b + ") " + bigDec2Bin(b) + "\n" + tk + " " + 
 			" (" + a + ") " + bigDec2Bin(a) + 
 			"\n   -------------------------------------\n   " + 
@@ -691,3 +777,4 @@ public class Controller2 implements ActionListener {
 	}
 	
 }
+

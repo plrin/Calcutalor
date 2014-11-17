@@ -194,7 +194,6 @@ public class Controller2 implements ActionListener {
 		String tk;
 		Stack<BigInteger> st = new Stack<BigInteger>();
 		int i; 
-		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
 		BigInteger a, b, x; 
 		String [] splitArray = string.split("\\s");
@@ -209,16 +208,20 @@ public class Controller2 implements ActionListener {
 				else {
 					x = new BigInteger(tk);
 				}
-				isNumber = true;
 				st.push(x);
+				// save string operation window
+				thermString += x + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 			}
+			// operators
 			else {
 				if (tk.matches("(?i)drop")) {
-					st.pop();
+					x = st.pop();
+					thermString += tk + "\t\tpop(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 				}
 				else if (tk.matches("(?i)dup")) {
 					x = st.peek();
 					st.push(x);
+					thermString += tk + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 				}
 				else if (tk.matches("(?i)sto")) {
 					a = st.pop(); // index
@@ -231,6 +234,8 @@ public class Controller2 implements ActionListener {
 					int index = a.intValue();
 					x = bigIntStore[index]; // get number from index a
 					st.push(x); // push number into stack
+					thermString += tk + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) +st.toString() + "\n";
+
 				}
 				else if (tk.matches("(?i)ifeq")) {
 					a = st.pop(); // number of jump backs
@@ -256,29 +261,15 @@ public class Controller2 implements ActionListener {
 					b = st.pop();
 					x = evalBigInt(b,a,tk);
 					st.push(x);
+					// save string operation window
+					thermString += tk + "\t\t" + "pop(" + b + "," + a + ")\n\t\t" + b + tk + 
+							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
+							"\t\t" + checkOverflow(x) + "\n";
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}
-				isNumber = false;
 			}
-			// save operations into string
-			String tmpTk = tk;
-			tk = x.toString();
-			String tmp = "";
-			if(tk.length() < 8) {
-				tmp = "\t";
-			}
-			
-			if(isNumber == true) {
-				thermString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
-			}
-			else {
-				thermString += tmpTk + "\t\t" + "pop(" + b + "," + a + ")\n\t\t" + b + tmpTk + 
-						a + "\n\t\tpush(" + x + ")\t" + tmp + st.toString() + 
-						"\t\t" + checkOverflow(x) + "\n";
-			}
-			// end of string save
 		}
 		
 		if (i < splitArray.length || st.size() > 1) {
@@ -463,7 +454,6 @@ public class Controller2 implements ActionListener {
 		String tk = "";
 		Stack<BigDecimal> st = new Stack<BigDecimal>();
 		int i; 
-		boolean isNumber = true;
 		// a and b are stack numbers to pop, x input/result number to push
 		BigDecimal a, b, x; 
 		String [] splitArray = string.split("\\s");
@@ -483,16 +473,19 @@ public class Controller2 implements ActionListener {
 				}
 				else {
 					x = new BigDecimal(tk);
-				}	
-				isNumber = true;
+				}
+				// save string operation window
+				thermString += x + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 			}	
 			else { // operations
 				if (tk.matches("(?i)drop")) {
-					st.pop();
+					x = st.pop();
+					thermString += tk + "\t\tpop(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 				}
 				else if (tk.matches("(?i)dup")) {
 					x = st.peek();
 					st.push(x);
+					thermString += tk + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 				}
 				else if (tk.matches("(?i)sto")) {
 					a = st.pop(); // index
@@ -505,6 +498,8 @@ public class Controller2 implements ActionListener {
 					int index = a.intValue();
 					x = bigDecStore[index]; // get number from index a
 					st.push(x); // push number into stack
+					thermString += tk + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
+
 				}
 				else if (tk.matches("(?i)ifeq")) {
 					a = st.pop(); // number of jump backs
@@ -528,35 +523,18 @@ public class Controller2 implements ActionListener {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
+					st.push(x);
 				}
 				else if (tk.matches("(?i)sin|cos|tan")) {
 					a = st.pop();
 					b = new BigDecimal("0");
 					x = evalBigDec(a,b,tk);
+					st.push(x);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}
-				isNumber = false;
 			}
-			st.push(x);
-			// save operations into string
-			String tmpTk = tk;
-			tk = x.toString();
-			String tmp = "";
-			if(tk.length() < 8) {
-				tmp = "\t";
-			}
-			
-			if(isNumber == true) {
-				thermString += tk + "\t\tpush(" + tk + ")\t" + tmp + st.toString() + "\n";  
-			}
-			else {
-				thermString += tmpTk + "\t\t" + "pop(" + b + "," + a + ")\n\t\t" + b + 
-						tmpTk + a + "\n\t\tpush(" + x + ")\t" +
-						tmp + st.toString() + "\t\t" + "" + "\n";
-			}
-			// end of string save
 		}
 		
 		if (i < splitArray.length || st.size() > 1) {
@@ -736,6 +714,16 @@ public class Controller2 implements ActionListener {
 		
 		return output;
 	}
+	
+	/* check tab for operator window in string, depends on tk.length */
+	public static String checkTab(int length) {
+		String tab = "";
+		if(length < 8) {
+			tab = "\t";
+		}
+		return tab;
+	}
+	
 	
 	// functions for saving strings to print
 	public String printTherm() {

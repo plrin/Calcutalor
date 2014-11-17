@@ -5,10 +5,10 @@ Die Eingabe eines Thermes erfolgt als Post-Fix Notation (umgekehrte polnische
 Notation).
 
 Beispiele:
-3 3 + 				<->		3 + 3
-23 3 4 * 23 - + 	<->		23 + 3 * 4 - 23
-0.3 0.1 - 			<-> 	0.3 - 0.1
-2 31 ^ 1 - 			<->		2^31 - 1
+3 3 + 			<->	3 + 3
+23 3 4 * 23 - +		<->		23 + 3 * 4 - 23
+0.3 0.1 - 		<-> 	0.3 - 0.1
+2 31 ^ 1 - 		<->	2^31 - 1
 
 Anmerkungen zur Eingabe:
 Fließkommazhalen können mit einem Punkt[.] beginnen.

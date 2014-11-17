@@ -23,8 +23,6 @@ public class View2 {
 	protected JComboBox numSystemComboBox;
 	private String numSystemArray [] = {"Integer", "Float"}; 
 	private JPanel loopPanel;
-	private JLabel loopLabel;
-	protected JTextField loopField;
 	private JLabel inputLabel;
 	protected JTextField inputField;
 	protected JButton button;
@@ -72,10 +70,6 @@ public class View2 {
 		gbc.gridy = 0;
 		frame.add(loopPanel, gbc);
 		
-		loopLabel = new JLabel("Loop");
-		loopPanel.add(loopLabel);
-		loopField = new JTextField("0", 3);
-		loopPanel.add(loopField);
 		
 		button = new JButton("=");
 		button.addActionListener(controller);

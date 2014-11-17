@@ -26,7 +26,12 @@ public class Controller2 implements ActionListener {
 	private BigInteger bigIntLastX;
 	private float floatLastX;
 	private BigDecimal bigDecLastX;
-	
+	// storage
+	private int[] intStore = new int [100];
+	private BigInteger[] bigIntStore = new BigInteger [100];
+	private float[] floatStore = new float [100];
+	private BigDecimal[] bigDecStore = new BigDecimal [100];
+		
 	
 	public Controller2() {
 		this.view = new View2(this);
@@ -59,19 +64,7 @@ public class Controller2 implements ActionListener {
 			}
 			else if (comboBox.equals("Float")) {
 				realOutput = String.valueOf(bigDecimalRPN());
-				compOutput = String.valueOf(floatRPN());
-				/*
-				try {
-					realOutput = String.valueOf(bigDecimalRPN());
-					compOutput = String.valueOf(floatRPN());
-				}
-				catch (Exception exc) {
-					JOptionPane.showMessageDialog(null, "Eingabe ueberschreitet Zahlenbereich"
-							+ "[x nachkommastellen].\n" + exc );
-					
-					realOutput = "error";
-					compOutput = "error";
-				}*/		
+				compOutput = String.valueOf(floatRPN());	
 			}
 			else {
 				JOptionPane.showMessageDialog(null, "Combobox Fehler.");
@@ -104,47 +97,60 @@ public class Controller2 implements ActionListener {
 		for (i = 0; i < splitArray.length; i++) {
 			a = 0; b = 0; x = 0;
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("last")) {
+			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("(?i)last")) {
 				if (tk.equals("last")) {
 					x = intLastX;
 				}
 				else {
 					x = Integer.parseInt(tk);
 				}	
+				st.push(x);
 			}
-			else { // start of operations
-				if (tk.matches("^for{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("for", ""));
-					tk = splitArray[i+1]; // take the token behind "for" from the array
-					a = st.pop(); // pop the numbers
-					b = st.pop();
-					x = evalInt(b,a,tk);
-					for (int j = 0; j < loops; j++) {
-						int tmp = x;
-						x = evalInt(tmp,a,tk);
-					}
-					i++;
+			// start of operations
+			else {
+				if (tk.matches("(?i)drop")) {
+					st.pop();
 				}
-				else if (tk.matches("^i{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("i", ""));
-					tk = splitArray[i+1];
-					a = st.pop();
-					for(int j = 1; j < loops; j++) {
-						int tmp = evalInt(a,j,tk);
-						x = evalInt(tmp,x,"+");
+				else if (tk.matches("(?i)dup")) {
+					x = st.peek();
+					st.push(x);
+				}
+				else if (tk.matches("(?i)sto")) {
+					a = st.pop(); // index
+					b = st.pop(); // number to store
+					intStore[a] = b; // save b in array index a
+				}
+				else if (tk.matches("(?i)rcl")) {
+					a = st.pop(); // index
+					x = intStore[a]; // get number from index a
+					st.push(x); // push number into stack
+				}
+				else if (tk.matches("(?i)ifeq")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b == x 
+					if (b == x) {
+						i = i + a;
 					}
-					i++;
+				}
+				else if (tk.matches("(?i)ifgr")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b > x 
+					if (b > x) {
+						i = i + a;
+					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalInt(b,a,tk);
+					st.push(x);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}
 			}
-			st.push(x);
 		}
 		
 		if (i < splitArray.length || st.size() > 1) {
@@ -204,42 +210,58 @@ public class Controller2 implements ActionListener {
 					x = new BigInteger(tk);
 				}
 				isNumber = true;
+				st.push(x);
 			}
 			else {
-				if (tk.matches("^for{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("for", ""));
-					tk = splitArray[i+1]; // take the token next to "for" from the array
-					a = st.pop(); // pop the numbers
-					b = st.pop();
-					x = evalBigInt(b,a,tk);
-					for (int j = 0; j < loops; j++) {
-						BigInteger tmp = x;
-						x = evalBigInt(tmp,a,tk);	
-					}
-					i++;
+				if (tk.matches("(?i)drop")) {
+					st.pop();
 				}
-				else if (tk.matches("^i{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("i", ""));
-					tk = splitArray[i+1];
-					a = st.pop();
-					for(int j = 1; j < loops; j++) {
-						BigInteger k = BigInteger.valueOf(Integer.valueOf(j));
-						BigInteger tmp = evalBigInt(a,k,tk);
-						x  = evalBigInt(tmp,x,"+");
+				else if (tk.matches("(?i)dup")) {
+					x = st.peek();
+					st.push(x);
+				}
+				else if (tk.matches("(?i)sto")) {
+					a = st.pop(); // index
+					int index = a.intValue();
+					b = st.pop(); // number to store
+					bigIntStore[index] = b; // save b in array index a
+				}
+				else if (tk.matches("(?i)rcl")) {
+					a = st.pop(); // index
+					int index = a.intValue();
+					x = bigIntStore[index]; // get number from index a
+					st.push(x); // push number into stack
+				}
+				else if (tk.matches("(?i)ifeq")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b == x 
+					
+					if (b.compareTo(a) == 0) {
+						int tmp = a.intValue();
+						i = i + tmp;
 					}
-					i++;
+				}
+				else if (tk.matches("(?i)ifgr")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b > x 
+					if (b.compareTo(x) == 1) {
+						int tmp = a.intValue();
+						i = i + tmp;
+					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigInt(b,a,tk);
+					st.push(x);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}
 				isNumber = false;
 			}
-			st.push(x);
 			// save operations into string
 			String tmpTk = tk;
 			tk = x.toString();
@@ -319,7 +341,7 @@ public class Controller2 implements ActionListener {
 		for (i = 0; i < splitArray.length; i++) {
 			a = 0f; b = 0f; x = 0f;
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e|last")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|e|last")) {
 				if (tk.equals("pi")) {
 					x = 3.1415927f;
 				}
@@ -335,49 +357,41 @@ public class Controller2 implements ActionListener {
 			}
 			// operate
 			else {
-				if (tk.matches("^for{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("for", ""));
-					tk = splitArray[i+1]; // take the token behind "for" from the array
-					a = st.pop(); // pop the numbers
-					b = st.pop();
-					x = evalFloat(b,a,tk);
-					for (int j = 0; j < loops; j++) {
-						float tmp = x;
-						x = evalFloat(tmp,a,tk);
-					}
-					i++;
+				if (tk.matches("(?i)drop")) {
+					st.pop();
 				}
-				/*
-				else if(tk.matches("^i{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("i", ""));
-					tk = splitArray[i+1];
-					a = st.pop();
-					for(int j = 1; j < loops; j++) {
-						Float tmp = evalFloat(a,j,tk);
-						x = evalFloat(x,tmp,"+");
-					}
-					i++;
+				else if (tk.matches("(?i)dup")) {
+					x = st.peek();
+					st.push(x);
 				}
-				*/
-				else if(tk.matches("i")) {
-					float tmp;
-					float end = st.pop();
-					float start = st.pop();
-					a = Float.parseFloat(splitArray[i+1]);
-					tk = splitArray[i+2];
-					for(float j = start; j < end; j++) {
-						tmp = evalFloat(a, j, tk);
-						//x = 
+				else if (tk.matches("(?i)sto")) {
+					a = st.pop(); // index
+					int index = (int) a;
+					b = st.pop(); // number to store
+					floatStore[index] = b; // save b in array index a
+				}
+				else if (tk.matches("(?i)rcl")) {
+					a = st.pop(); // index
+					int index = (int) a;
+					x = floatStore[index]; // get number from index a
+					st.push(x); // push number into stack
+				}
+				else if (tk.matches("(?i)ifeq")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b == x 
+					if (b == x) {
+						int tmp = (int) a;
+						i = i + tmp;
 					}
-					
-					while(!tk.matches("end")) {
-						x = Float.parseFloat(splitArray[i+1]);
-						tk = splitArray[i+2];
-						for(float j = start; j < end; j++) {
-							//eval
-						}
-						
-						i = i + 2;
+				}
+				else if (tk.matches("(?i)ifgr")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b > x 
+					if (b > x) {
+						int tmp = (int) a;
+						i = i + tmp;
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
@@ -385,7 +399,7 @@ public class Controller2 implements ActionListener {
 					b = st.pop();
 					x = evalFloat(b,a,tk);
 				}
-				else if (tk.matches("sin|cos|tan")) {
+				else if (tk.matches("(?i)sin|cos|tan")) {
 					a = st.pop();
 					b = 0;
 					x = evalFloat(a,b,tk);
@@ -457,7 +471,7 @@ public class Controller2 implements ActionListener {
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
 			a = new BigDecimal("0"); b = new BigDecimal("0"); x = new BigDecimal("0");
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("pi|e|last")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|e|last")) {
 				if (tk.equals("pi")) {
 					x = BigDecimalMath.pi(new MathContext(14));
 				}
@@ -473,35 +487,49 @@ public class Controller2 implements ActionListener {
 				isNumber = true;
 			}	
 			else { // operations
-				if (tk.matches("^for{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("for", ""));
-					tk = splitArray[i+1]; // take the token next to "for" from the array
-					a = st.pop(); // pop the numbers
-					b = st.pop();
-					x = evalBigDec(b,a,tk);
-					for (int j = 0; j < loops; j++) {
-						BigDecimal tmp = x;
-						x = evalBigDec(tmp,a,tk);	
-					}
-					i++;
+				if (tk.matches("(?i)drop")) {
+					st.pop();
 				}
-				else if(tk.matches("^i{1}\\d+$")) {
-					int loops = Integer.valueOf(tk.replace("i", ""));
-					tk = splitArray[i+1];
-					a = st.pop();
-					for(int j = 1; j < loops; j++) {
-						BigDecimal k = new BigDecimal(j);
-						BigDecimal tmp = evalBigDec(a,k,tk);
-						x  = evalBigDec(tmp,x,"+");
+				else if (tk.matches("(?i)dup")) {
+					x = st.peek();
+					st.push(x);
+				}
+				else if (tk.matches("(?i)sto")) {
+					a = st.pop(); // index
+					int index = a.intValue();
+					b = st.pop(); // number to store
+					bigDecStore[index] = b; // save b in array index a
+				}
+				else if (tk.matches("(?i)rcl")) {
+					a = st.pop(); // index
+					int index = a.intValue();
+					x = bigDecStore[index]; // get number from index a
+					st.push(x); // push number into stack
+				}
+				else if (tk.matches("(?i)ifeq")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b == x 
+					if (b.compareTo(x) == 0) {
+						int tmp = a.intValue();
+						i = i + tmp;
 					}
-					i++;
+				}
+				else if (tk.matches("(?i)ifgr")) {
+					a = st.pop(); // number of jump backs
+					b = st.pop(); // first number to check
+					x = st.pop(); // second number to check, b > x 
+					if (b.compareTo(x) == 1) {
+						int tmp = a.intValue();
+						i = i + tmp;
+					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
 				}
-				else if (tk.matches("sin|cos|tan")) {
+				else if (tk.matches("(?i)sin|cos|tan")) {
 					a = st.pop();
 					b = new BigDecimal("0");
 					x = evalBigDec(a,b,tk);
@@ -590,22 +618,7 @@ public class Controller2 implements ActionListener {
 			}
 		});
 	}
-	
-	
-	/* get the number of loops which were entered before */
-	public int getLoop() {
-		String textField = view.loopField.getText();
-		int numberOfLoops = 0;
-		try {
-			numberOfLoops = Integer.parseInt(textField);
-		}
-		catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(null, "Keine gueltige Nummer im Loop!\n" + e);
-		}
-		return numberOfLoops;
-	}
-	
-	
+		
 	public String getInput() {
 		return view.inputField.getText();
 	}
@@ -704,8 +717,6 @@ public class Controller2 implements ActionListener {
 	/* convert float to binary representation IEEE 754 */
 	public static String float2bin(float f) {
 		String str = new String("");
-		//str = Integer.toString(Float.floatToIntBits(f), 2);
-		System.out.println(str);
 		str = String.format("%32s", Integer.toBinaryString(Float.floatToIntBits(f))).replace(' ', '0');
 		str = str.substring(0, 1) + " " + str.substring(1, 9) + " " + str.substring(9, str.length());
 		
@@ -728,7 +739,7 @@ public class Controller2 implements ActionListener {
 	
 	// functions for saving strings to print
 	public String printTherm() {
-		String start = "Reale Arithmetik\n\nInput\t\tOperation\t\tStack\t\tHinweis\n";
+		String start = "Operationen\n\nInput\t\tOperation\t\tStack\t\tHinweis\n";
 
 		return start + thermString;
 	}
@@ -754,10 +765,10 @@ public class Controller2 implements ActionListener {
 
 	// convert to bin and save in string 
 	public static void saveRealStringInteger(BigInteger a, BigInteger b, BigInteger x, String tk) {
-			realString += " (" + b + ") " + bigInteger2bin(b) + "\n" + tk + 
-				" (" + a + ") " + bigInteger2bin(a) + 
+			realString += " (" + b + ") " + "\n" + tk + 
+				" (" + a + ") " + 
 				"\n   -------------------------------------\n   " + 
-				" (" + x + ") " + bigInteger2bin(x) + "\n\n";
+				" (" + x + ") " + "\n\n";
 	}
 	
 	// convert to bin and save in string
@@ -770,10 +781,10 @@ public class Controller2 implements ActionListener {
 	
 	// convert bigdec to bin and save in string
 	public static void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
-		realString += "   " + " (" + b + ") " + bigDec2Bin(b) + "\n" + tk + " " + 
-			" (" + a + ") " + bigDec2Bin(a) + 
+		realString += "   " + " (" + a + ") " + "\n" + tk + " " + 
+			" (" + b + ") " + 
 			"\n   -------------------------------------\n   " + 
-			" (" + x + ") " + bigDec2Bin(x) +  "\n\n";
+			" (" + x + ") " +  "\n\n";
 	}
 	
 }

@@ -20,11 +20,21 @@ Die Schleifen-Funktionen funktiert nur mit Zwei Zahlen
 
 
 
-Fehler und TO-DO:
 
-* BigDecimal binaerausgabe falsch, immer nur noch 32 bit, statt mehr
-* BigDecimal Exponential falsch/ungenau, immer nur 1-2 nachkommastellen oder falsches runden
-	durch Float64 von jscience Lösung möglich, aber Float 64 wäre das selbe wie double(?)
-* Schleife mit 1 100 i
-* Kontrollbefehle
 * GUI verbessern
+
+/* Stack Instructions */
+
+// DUPLICATE (DUP) - duplicates top stack entry
+
+// DROP (DROP) - drop top stack entry
+
+// STORE (STO) - store previous number in array (storage) in the x postion
+	0 1 STO => store number 0 in index 1
+
+// RECALL (RCL) - recall number of the position from array (storage) and push into stack
+	3 RCL => recall number from array index 3 and push into stack
+
+// IF EQUAL (IFEQ) - check if the top two numbers are equal, if so, then jump x numbers back of the string array
+
+// IF GREATER THAN (IFGR) - check if the top number is greater than the second from the stack, if so, then jump x numbers back of the string array

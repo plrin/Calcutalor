@@ -86,7 +86,7 @@ public class Controller2 implements ActionListener {
 	 */
 		
 	/* computer arithmetic */
-	public String integerRPN() {
+	public int integerRPN() {
 		String string = getInput();
 		String tk;
 		Stack<Integer> st = new Stack<Integer>(); 
@@ -94,7 +94,7 @@ public class Controller2 implements ActionListener {
 		int a, b, x, i; 
 		String [] splitArray = string.split("\\s");
 		
-		for (i = 0; i < splitArray.length; i++) {
+		for (i = 0; i <= splitArray.length; ++i) {
 			a = 0; b = 0; x = 0;
 			tk = splitArray[i];
 			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("(?i)last")) {
@@ -126,19 +126,19 @@ public class Controller2 implements ActionListener {
 					st.push(x); // push number into stack
 				}
 				else if (tk.matches("(?i)ifeq")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b == x 
-					if (b == x) {
-						i = i + a;
+					a = st.pop(); // number of position
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x == b
+					if (x == b) {
+						i = a;
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b > x 
-					if (b > x) {
-						i = i + a;
+					a = st.pop(); // number of the position to go
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x > b 
+					if (x > b) {
+						i = a;
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
@@ -155,11 +155,11 @@ public class Controller2 implements ActionListener {
 		
 		if (i < splitArray.length || st.size() > 1) {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen Fehlt.");
-			return "error";
+			return 00;
 		}
 		else {
 			intLastX = st.peek();
-			return String.valueOf(st.pop());
+			return st.pop();
 		}
 	}
 	
@@ -189,7 +189,7 @@ public class Controller2 implements ActionListener {
 	}
 	
 	/* real/human arithmetic */
-	public String bigIntegerRPN() {
+	public BigInteger bigIntegerRPN() {
 		String string = getInput();
 		String tk;
 		Stack<BigInteger> st = new Stack<BigInteger>();
@@ -198,7 +198,7 @@ public class Controller2 implements ActionListener {
 		BigInteger a, b, x; 
 		String [] splitArray = string.split("\\s");
 		
-		for (i = 0; i < splitArray.length; i++) {
+		for (i = 0; i <= splitArray.length; ++i) {
 			a = new BigInteger("0"); b = new BigInteger("0"); x = new BigInteger("0");
 			tk = splitArray[i];
 			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("last")) {
@@ -228,6 +228,8 @@ public class Controller2 implements ActionListener {
 					int index = a.intValue();
 					b = st.pop(); // number to store
 					bigIntStore[index] = b; // save b in array index a
+					thermString += tk + "\t\tpop(" + a + "," + b + ")\t" + checkTab(tk.length()) + st.toString() +
+							"\t\t" + "save " + b + " in [" + a + "]" + "\n";
 				}
 				else if (tk.matches("(?i)rcl")) {
 					a = st.pop(); // index
@@ -238,22 +240,25 @@ public class Controller2 implements ActionListener {
 
 				}
 				else if (tk.matches("(?i)ifeq")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b == x 
-					
-					if (b.compareTo(a) == 0) {
+					a = st.pop(); // number of position
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x == b 
+					if (x.compareTo(b) == 0) {
 						int tmp = a.intValue();
-						i = i + tmp;
+						i = tmp;
+						thermString += tk + "\t\t" + x + "=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tJump to pos " + i + "\n";
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b > x 
-					if (b.compareTo(x) == 1) {
+					a = st.pop(); // number of position
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x > b 
+					if (x.compareTo(b) == 1) {
 						int tmp = a.intValue();
-						i = i + tmp;
+						i = tmp;
+						thermString += tk + "\t\t" + x + ">" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tJump to pos " + i + "\n";
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
@@ -274,11 +279,11 @@ public class Controller2 implements ActionListener {
 		
 		if (i < splitArray.length || st.size() > 1) {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen Fehlt.");
-			return "error";
+			return new BigInteger("00");
 		}
 		else {
 			bigIntLastX = st.peek();
-			return String.valueOf(st.pop());
+			return st.pop();
 		}
 	}
 	
@@ -320,7 +325,7 @@ public class Controller2 implements ActionListener {
 	 */
 	
 	/* computer arithmetic */
-	public String floatRPN() {
+	public float floatRPN() {
 		String string = getInput();
 		String tk;
 		Stack<Float> st = new Stack<Float>(); 
@@ -368,10 +373,10 @@ public class Controller2 implements ActionListener {
 					st.push(x); // push number into stack
 				}
 				else if (tk.matches("(?i)ifeq")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b == x 
-					if (b == x) {
+					a = st.pop(); // number of pos
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x == b 
+					if (x == b) {
 						int tmp = (int) a;
 						i = i + tmp;
 					}
@@ -380,7 +385,7 @@ public class Controller2 implements ActionListener {
 					a = st.pop(); // number of jump backs
 					b = st.pop(); // first number to check
 					x = st.pop(); // second number to check, b > x 
-					if (b > x) {
+					if (x > b) {
 						int tmp = (int) a;
 						i = i + tmp;
 					}
@@ -405,11 +410,11 @@ public class Controller2 implements ActionListener {
 		
 		if (i < splitArray.length || st.size() > 1) {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen Fehlt.");
-			return "error";
+			return 00;
 		}
 		else {
 			floatLastX = st.peek();
-			return String.valueOf(st.pop());
+			return st.pop();
 		}
 	}
 	
@@ -449,7 +454,7 @@ public class Controller2 implements ActionListener {
 	
 	
 	/* real/human arithmetic */
-	public String bigDecimalRPN() {
+	public BigDecimal bigDecimalRPN() {
 		String string = getInput();
 		String tk = "";
 		Stack<BigDecimal> st = new Stack<BigDecimal>();
@@ -504,17 +509,17 @@ public class Controller2 implements ActionListener {
 				else if (tk.matches("(?i)ifeq")) {
 					a = st.pop(); // number of jump backs
 					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b == x 
-					if (b.compareTo(x) == 0) {
+					x = st.pop(); // second number to check, x == b 
+					if (x.compareTo(b) == 0) {
 						int tmp = a.intValue();
 						i = i + tmp;
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
-					a = st.pop(); // number of jump backs
-					b = st.pop(); // first number to check
-					x = st.pop(); // second number to check, b > x 
-					if (b.compareTo(x) == 1) {
+					a = st.pop(); // number of position
+					b = st.pop(); // second number to check
+					x = st.pop(); // first number to check, x >bx 
+					if (x.compareTo(b) == 1) {
 						int tmp = a.intValue();
 						i = i + tmp;
 					}
@@ -539,11 +544,11 @@ public class Controller2 implements ActionListener {
 		
 		if (i < splitArray.length || st.size() > 1) {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen Fehlt.");
-			return "error";
+			return new BigDecimal("00");
 		}
 		else {
 			bigDecLastX = st.peek();
-			return st.pop().toString();
+			return st.pop();
 		}
 	}
 	

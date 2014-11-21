@@ -25,6 +25,7 @@ public class View2 {
 	private JPanel loopPanel;
 	private JLabel inputLabel;
 	protected JTextField inputField;
+	protected JTextArea inputArea;
 	protected JButton button;
 	private JLabel realLabel;
 	protected JTextField realOutput;
@@ -80,9 +81,13 @@ public class View2 {
 		// Row = 1
 		thermPanel = new JPanel(new GridLayout(2,0));
 		inputLabel = new JLabel("Eingabe");
-		inputField = new JTextField(20);
+		//inputField = new JTextField(20);
+		inputArea = new JTextArea(5, 20);
+		inputArea.setLineWrap(true);
+		inputArea.setWrapStyleWord(true);
 		thermPanel.add(inputLabel);
-		thermPanel.add(inputField);
+		//thermPanel.add(inputField);
+		thermPanel.add(inputArea);
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		frame.add(thermPanel, gbc);
@@ -114,7 +119,7 @@ public class View2 {
 		frame.add(realPanel, gbc);
 		
 		scrollPanel2 = new JPanel();
-	    scrollPanel2.setBorder(new TitledBorder(new EtchedBorder(), "richtige Berechnung im Binaersystem"));
+	    scrollPanel2.setBorder(new TitledBorder(new EtchedBorder(), "Richtige Berechnung im Dezimalsystem"));
 		
 		
 		realTextPane = new JTextPane();

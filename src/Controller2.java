@@ -60,11 +60,20 @@ public class Controller2 implements ActionListener {
 							+ "[-2^31 = -2.147.483.648 bis 2^31-1 = 2.147.483.647].\n" + exc );
 					realOutput = "error";
 					compOutput = "error";
-				}	
+				}
+				//realOutput = String.valueOf(bigIntegerRPN());
+				//compOutput = String.valueOf(integerRPN());
 			}
 			else if (comboBox.equals("Float")) {
-				realOutput = String.valueOf(bigDecimalRPN());
-				compOutput = String.valueOf(floatRPN());	
+				try {
+					realOutput = String.valueOf(bigDecimalRPN());
+					compOutput = String.valueOf(floatRPN());
+				}
+				catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, exc );
+					realOutput = "error";
+					compOutput = "error";
+				}
 			}
 			else {
 				JOptionPane.showMessageDialog(null, "Combobox Fehler.");
@@ -94,7 +103,7 @@ public class Controller2 implements ActionListener {
 		int a, b, x, i; 
 		String [] splitArray = string.split("\\s");
 		
-		for (i = 0; i <= splitArray.length; ++i) {
+		for (i = 0; i < splitArray.length; ++i) {
 			a = 0; b = 0; x = 0;
 			tk = splitArray[i];
 			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("(?i)last")) {
@@ -131,6 +140,7 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // first number to check, x == b
 					if (x == b) {
 						i = a;
+						i--;
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
@@ -139,6 +149,7 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // first number to check, x > b 
 					if (x > b) {
 						i = a;
+						i--;
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
@@ -198,7 +209,7 @@ public class Controller2 implements ActionListener {
 		BigInteger a, b, x; 
 		String [] splitArray = string.split("\\s");
 		
-		for (i = 0; i <= splitArray.length; ++i) {
+		for (i = 0; i < splitArray.length; ++i) {
 			a = new BigInteger("0"); b = new BigInteger("0"); x = new BigInteger("0");
 			tk = splitArray[i];
 			if (tk.matches("^[+-]?(\\d+)$") || tk.matches("last")) {
@@ -248,6 +259,11 @@ public class Controller2 implements ActionListener {
 						i = tmp;
 						thermString += tk + "\t\t" + x + "=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
 								"\t\tJump to pos " + i + "\n";
+						i--;
+					}
+					else {
+						thermString += tk + "\t\t" + x + "=/=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tweiter" + "\n";
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
@@ -259,6 +275,11 @@ public class Controller2 implements ActionListener {
 						i = tmp;
 						thermString += tk + "\t\t" + x + ">" + b + "\t" + checkTab(tk.length()) + st.toString() + 
 								"\t\tJump to pos " + i + "\n";
+						i--;
+					}
+					else {
+						thermString += tk + "\t\t" + x + "<=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tweiter" + "\n";
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
@@ -349,7 +370,8 @@ public class Controller2 implements ActionListener {
 				}
 				else {
 					x = Float.parseFloat(tk);
-				}	
+				}
+				st.push(x);
 			}
 			// operate
 			else {
@@ -378,7 +400,8 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // first number to check, x == b 
 					if (x == b) {
 						int tmp = (int) a;
-						i = i + tmp;
+						i = tmp;
+						i--;
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
@@ -387,25 +410,26 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // second number to check, b > x 
 					if (x > b) {
 						int tmp = (int) a;
-						i = i + tmp;
+						i = tmp;
+						i--;
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalFloat(b,a,tk);
+					st.push(x);
 				}
 				else if (tk.matches("(?i)sin|cos|tan")) {
 					a = st.pop();
 					b = 0;
 					x = evalFloat(a,b,tk);
+					st.push(x);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
-				}
-				
-			}
-			st.push(x);	
+				}	
+			}	
 		}
 		
 		if (i < splitArray.length || st.size() > 1) {
@@ -479,6 +503,7 @@ public class Controller2 implements ActionListener {
 				else {
 					x = new BigDecimal(tk);
 				}
+				st.push(x);
 				// save string operation window
 				thermString += x + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
 			}	
@@ -504,7 +529,6 @@ public class Controller2 implements ActionListener {
 					x = bigDecStore[index]; // get number from index a
 					st.push(x); // push number into stack
 					thermString += tk + "\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + "\n";
-
 				}
 				else if (tk.matches("(?i)ifeq")) {
 					a = st.pop(); // number of jump backs
@@ -512,7 +536,15 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // second number to check, x == b 
 					if (x.compareTo(b) == 0) {
 						int tmp = a.intValue();
-						i = i + tmp;
+						i = tmp;
+						thermString += tk + "\t\t" + x + "=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tJump to pos " + i + "\n";
+						i--;
+					}
+					else {
+						thermString += tk + "\t\t" + x + "=/=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tweiter" + "\n";
+					
 					}
 				}
 				else if (tk.matches("(?i)ifgr")) {
@@ -521,13 +553,24 @@ public class Controller2 implements ActionListener {
 					x = st.pop(); // first number to check, x >bx 
 					if (x.compareTo(b) == 1) {
 						int tmp = a.intValue();
-						i = i + tmp;
+						i = tmp;
+						thermString += tk + "\t\t" + x + ">" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tJump to pos " + i + "\n";
+						i--;
+					}
+					else {
+						thermString += tk + "\t\t" + x + "<=" + b + "\t" + checkTab(tk.length()) + st.toString() + 
+								"\t\tweiter\n";
 					}
 				}
 				else if (tk.matches("(\\+|\\-|\\*|\\/|\\^)?")) {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
+					// save string operation window
+					thermString += tk + "\t\t" + "pop(" + b + "," + a + ")\n\t\t" + b + tk + 
+							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
+							"\t\t" + "\n";
 					st.push(x);
 				}
 				else if (tk.matches("(?i)sin|cos|tan")) {
@@ -535,6 +578,10 @@ public class Controller2 implements ActionListener {
 					b = new BigDecimal("0");
 					x = evalBigDec(a,b,tk);
 					st.push(x);
+					// save string operation window
+					thermString += tk + "\t\t" + "pop(" + a + ")\n\t\t" + tk + 
+							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
+							"\t\t" + "\n";
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
@@ -603,7 +650,7 @@ public class Controller2 implements ActionListener {
 	}
 		
 	public String getInput() {
-		return view.inputField.getText();
+		return view.inputArea.getText();
 	}
 	
 	
@@ -774,8 +821,8 @@ public class Controller2 implements ActionListener {
 	
 	// convert bigdec to bin and save in string
 	public static void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
-		realString += "   " + " (" + a + ") " + "\n" + tk + " " + 
-			" (" + b + ") " + 
+		realString += " (" + b + ") " + "\n" + tk + 
+			" (" + a + ") " + 
 			"\n   -------------------------------------\n   " + 
 			" (" + x + ") " +  "\n\n";
 	}

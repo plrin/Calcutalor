@@ -567,11 +567,11 @@ public class Controller2 implements ActionListener {
 					a = st.pop();
 					b = st.pop();
 					x = evalBigDec(b,a,tk);
+					st.push(x);
 					// save string operation window
 					thermString += tk + "\t\t" + "pop(" + b + "," + a + ")\n\t\t" + b + tk + 
 							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
 							"\t\t" + "\n";
-					st.push(x);
 				}
 				else if (tk.matches("(?i)sin|cos|tan")) {
 					a = st.pop();
@@ -690,23 +690,7 @@ public class Controller2 implements ActionListener {
 	
 	/* exponential function for big decimal */
 	public static BigDecimal bigDecPow(BigDecimal base, BigDecimal exp) {
-		/*BigDecimal res = new BigDecimal("1");
-		boolean isNegativ = false;
-		if (exp.compareTo(new BigDecimal("0")) == -1) {
-			isNegativ = true;
-		} 
-		else {
-			isNegativ = false;
-		}
-		
-		exp = exp.abs();
-		int i = exp.intValueExact();
-		res = base.pow(i);
-		if (isNegativ == true) {
-			res = new BigDecimal("1").divide(res);
-		}	*/
 		BigDecimal res = BigDecimalMath.pow(base, exp);
-		
 		return res;	
 	}
 	
@@ -714,6 +698,12 @@ public class Controller2 implements ActionListener {
 	public static String twosComplement(int i) {
 		String output;
 		output = String.format("%32s", Integer.toBinaryString(i)).replace(' ', '0');
+		
+		output = output.substring(0, 4) + " " + output.substring(4,8) + " " + 
+				output.substring(8, 12) + " " + output.substring(12, 16) + " " +
+				output.substring(16, 20) + " " + output.substring(20, 24) + " " +
+				output.substring(24, 28) + " " + output.substring(28, output.length());
+		
 		return output;
 	}
 	
@@ -798,7 +788,7 @@ public class Controller2 implements ActionListener {
 	public static void saveCompStringInteger(int a, int b, int x, String tk) {
 		compString += " (" + b + ") " + twosComplement(b)  + "\n" + tk + 
 				" (" + a + ") " + twosComplement(a) + 
-				"\n   -------------------------------------\n   " + 
+				"\n   --------------------------------------------\n   " + 
 				" (" + x + ") " + twosComplement(x) + "\n\n";
 		
 	}
@@ -807,7 +797,7 @@ public class Controller2 implements ActionListener {
 	public static void saveRealStringInteger(BigInteger a, BigInteger b, BigInteger x, String tk) {
 			realString += " (" + b + ") " + "\n" + tk + 
 				" (" + a + ") " + 
-				"\n   -------------------------------------\n   " + 
+				"\n   --------------------------------------------\n   " + 
 				" (" + x + ") " + "\n\n";
 	}
 	
@@ -815,7 +805,7 @@ public class Controller2 implements ActionListener {
 	public static void saveCompStringFloat(float a, float b, float x, String tk) {
 		compString += " (" + b + ") " +  float2bin(b) +  "\n" + tk + 
 				" (" + a + ") " + float2bin(a) +  
-			"\n   -------------------------------------\n   " + 
+			"\n   --------------------------------------------\n   " + 
 			" (" + x + ") " + float2bin(x) + "\n\n";
 	}
 	
@@ -823,7 +813,7 @@ public class Controller2 implements ActionListener {
 	public static void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
 		realString += " (" + b + ") " + "\n" + tk + 
 			" (" + a + ") " + 
-			"\n   -------------------------------------\n   " + 
+			"\n   -------------------------------------------\n   " + 
 			" (" + x + ") " +  "\n\n";
 	}
 	

@@ -746,6 +746,54 @@ public class Controller2 implements ActionListener {
 	}
 	
 	
+	// credit to Tobi Lehman on stackoverflow
+	private static double binaryStringToDouble(String s) {
+	    return stringToDouble(s, 2);
+	}
+
+	private static double stringToDouble(String s, int base) {
+	    String withoutPeriod = s.replace(".", "");
+	    double value = new BigInteger(withoutPeriod, base).doubleValue();
+	    String binaryDivisor = "1" + s.split("\\.")[1].replace("1", "0");
+	    double divisor = new BigInteger(binaryDivisor, base).doubleValue();
+	    return value / divisor;
+	}
+	
+	// convert IEEE 754 BitString into normalize floating point number
+		public static String bin2norm(float x) {
+			String str = float2bin(x);
+			
+			String v = str.substring(0,1);
+			String b = str.substring(2,10);
+			String m = str.substring(11, str.length());
+			// get sign
+			if (v.equals("0")) {
+				v = "+";
+			}
+			else if (v.equals("1")) {
+				v = "-";
+			}
+			
+			// get bias
+			int bias = Integer.parseInt(b, 2);
+			bias = -127 + bias;
+			b = String.valueOf(bias);
+			
+			// get mantissa
+			if(b.equals("-127")) {
+				
+				m = "0." + m;
+			}
+			else {
+				m = "1." + m;
+			}
+			double mantissa = binaryStringToDouble(m);
+			m = String.valueOf(mantissa);
+			
+			return v + m + " x 2^" + b;
+		}
+	
+	
 	/* prints a hint under "hinweis" if there is an overflow  */
 	public static String checkOverflow(BigInteger i) {
 		String output = "";
@@ -782,7 +830,7 @@ public class Controller2 implements ActionListener {
 	}
 	
 	public String printComp() {
-		String compStart = "\n"; 
+		String compStart = "(Dezimalzahl) [normaliserte Gleitkommazahl] Binaerdarstellung\n\n"; 
 		return compStart + compString;
 	}	
 	
@@ -805,16 +853,17 @@ public class Controller2 implements ActionListener {
 	
 	// convert to bin and save in string
 	public static void saveCompStringFloat(float a, float b, float x, String tk) {
-		compString += " (" + b + ") " +  float2bin(b) +  "\n" + tk + 
-				" (" + a + ") " + float2bin(a) +  
+		compString += " (" + b + ") " + "[" + bin2norm(b) + "] " +  float2bin(b) +  "\n" + tk + 
+				" (" + a + ") " + "[" + bin2norm(a) + "] " + float2bin(a) +  
 			"\n   --------------------------------------------\n   " + 
-			" (" + x + ") " + float2bin(x) + "\n\n";
+			" (" + x + ") " + "[" + bin2norm(x) + "] "  + float2bin(x) + "\n\n";
 	}
+	
 	
 	// convert bigdec to bin and save in string
 	public static void saveRealStringFloat(BigDecimal a, BigDecimal b, BigDecimal x, String tk) {
-		realString += " (" + b + ") " + "\n" + tk + 
-			" (" + a + ") " + 
+		realString += " (" + a + ") " + "\n" + tk + 
+			" (" + b + ") " + 
 			"\n   -------------------------------------------\n   " + 
 			" (" + x + ") " +  "\n\n";
 	}

@@ -358,11 +358,12 @@ public class Controller2 implements ActionListener {
 		for (i = 0; i < splitArray.length; i++) {
 			a = 0f; b = 0f; x = 0f;
 			tk = splitArray[i];
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|e|last")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|eu|last") || 
+					tk.matches("^[+-]?(\\d+.\\d+)[eE]{1}[+-]?\\d+")) {
 				if (tk.equals("pi")) {
 					x = 3.1415927f;
 				}
-				else if (tk.equals("e")) {
+				else if (tk.equals("eu")) {
 					x = 2.7182817f;
 				}
 				else if(tk.equals("last")) {
@@ -490,11 +491,12 @@ public class Controller2 implements ActionListener {
 		for (i = 0; i < splitArray.length; i++) {
 			tk = splitArray[i];
 			a = new BigDecimal("0"); b = new BigDecimal("0"); x = new BigDecimal("0");
-			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|e|last")) {
+			if (tk.matches("^[+-]?(\\.\\d+|\\d+(\\.\\d+)?)$") || tk.matches("(?i)pi|eu|last") ||
+					tk.matches("^[+-]?(\\d+.\\d+)[eE]{1}[+-]?\\d+")) {
 				if (tk.equals("pi")) {
 					x = BigDecimalMath.pi(new MathContext(14));
 				}
-				else if (tk.equals("e")) {
+				else if (tk.equals("eu")) {
 					x = new BigDecimal("2.71828182845904");
 				}
 				else if (tk.equals("last")) {

@@ -169,7 +169,17 @@ public class View2 {
 		frame.setSize(500, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		frame.revalidate();
 		frame.pack();	
 	
+	}
+	
+	public void disableResize() {
+		int width = frame.getWidth();
+		int height = frame.getHeight();
+		if(width < 500 || height < 500) {
+			frame.setResizable(false);
+
+		}
 	}
 }

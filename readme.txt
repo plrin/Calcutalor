@@ -35,7 +35,7 @@ Die Schleifen-Funktionen funktiert nur mit Zwei Zahlen
 // RECALL (RCL) - recall number of the position from array (storage) and push into stack
 	3 RCL => recall number from array index 3 and push into stack
 
-// IF EQUAL (A B C IFEQ) - check if the top two numbers (A B) are equal, if so, then jump C numbers back of the string array
+// IF EQUAL (A B C IFEQ) - check if the top two numbers (A B) are equal, if so, then jump to position c of input (first token pos = 0)
 
 // IF GREATER THAN (IFGR) - check if the top number is greater than the second from the stack, if so, then jump x numbers back of the string array
 

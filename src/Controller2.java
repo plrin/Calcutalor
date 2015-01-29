@@ -5,13 +5,11 @@ import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
-
 import javax.swing.JOptionPane;
-
 import org.nevec.rjm.BigDecimalMath;
+import subsift.ArithmeticTools;
+
 
 public class Controller2 implements ActionListener {
 	
@@ -427,6 +425,18 @@ public class Controller2 implements ActionListener {
 					x = evalFloat(a,b,tk);
 					st.push(x);
 				}
+				else if (tk.matches("(?i)ln")) {
+					a = st.pop();
+					b = 0;
+					x = evalFloat(a,b,tk);
+					st.push(x);
+				}
+				else if (tk.matches("(?i)log")) {
+					a = st.pop();
+					b = 0;
+					x = evalFloat(a,b,tk);
+					st.push(x);
+				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}	
@@ -469,6 +479,12 @@ public class Controller2 implements ActionListener {
 		else if (tk.equals("tan")) {
 			x = (float) Math.tan(b);
 		}		
+		else if(tk.equals("ln")) {
+			x = (float) Math.log(b);
+		}
+		else if(tk.matches("log")) {
+			x = (float) Math.log10(b);
+		}
 		else {
 			JOptionPane.showMessageDialog(null, "Rechenzeichen nicht gueltig.");
 		}
@@ -585,6 +601,26 @@ public class Controller2 implements ActionListener {
 							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
 							"\t\t" + "\n";
 				}
+				else if(tk.matches("(?i)ln")) {
+					a = st.pop();
+					b = new BigDecimal("0");
+					x = evalBigDec(a,b,tk);
+					st.push(x);
+					// save string operation window
+					thermString += tk + "\t\t" + "pop(" + a + ")\n\t\t" + tk + 
+							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
+							"\t\t" + "\n";
+				}
+				else if(tk.matches("(?i)log")) {
+					a = st.pop();
+					b = new BigDecimal("0");
+					x = evalBigDec(a,b,tk);
+					st.push(x);
+					// save string operation window
+					thermString += tk + "\t\t" + "pop(" + a + ")\n\t\t" + tk + 
+							a + "\n\t\tpush(" + x + ")\t" + checkTab(tk.length()) + st.toString() + 
+							"\t\t" + "\n";
+				}
 				else {
 					JOptionPane.showMessageDialog(null, "Ungueltiger Operator.");
 				}
@@ -627,6 +663,12 @@ public class Controller2 implements ActionListener {
 		}
 		else if (tk.equals("tan")) {
 			x = BigDecimalMath.tan(b);
+		}
+		else if (tk.equals("ln")) {
+			x = BigDecimalMath.log(b);
+		}
+		else if (tk.equals("log")) {
+			x = ArithmeticTools.log10(b);
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Operator nicht gueltig");

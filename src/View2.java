@@ -58,7 +58,7 @@ public class View2 {
 		
 		// style attributes
 		SimpleAttributeSet style = new SimpleAttributeSet();  
-		StyleConstants.setAlignment(style , StyleConstants.ALIGN_RIGHT); 
+		StyleConstants.setAlignment(style, StyleConstants.ALIGN_RIGHT); 
 		
 		// Row = 0
 		numSystemComboBox = new JComboBox(numSystemArray);
@@ -166,10 +166,10 @@ public class View2 {
 		frame.add(scrollPanel3, gbc);
 		
 		
-		frame.setSize(500, 500);
+		//frame.setSize(500, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		frame.revalidate();
+		//frame.revalidate();
 		frame.pack();	
 	
 	}
